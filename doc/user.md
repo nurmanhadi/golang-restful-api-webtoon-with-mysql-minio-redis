@@ -89,3 +89,49 @@
 - Response Code
 
     `200` `400` `404`
+
+### 6. Get User `GET api/users/{userID}`
+
+- Header
+    `Authorization: Bearer token`
+
+- Response Code
+
+    `200` `400` `404`
+
+### 7. Add Admin `POST api/users/admins`
+
+- Header
+    `Authorization: Bearer token`
+    `Content-Type: application/json`
+
+- Body
+
+    ```json
+    {
+        "username": "example",
+        "password": "example"
+    }
+    ```
+
+- Response Code
+
+    `200` `400` `404`
+
+### 8. Delete Admin `DELETE api/users/{userID}/admins`
+
+- Header
+    `Authorization: Bearer token`
+
+- Response Code
+
+    `200` `400` `404`
+
+### 9. Delete Admin `POST api/users/{userID}/logout`
+
+- Header
+    `Authorization: Bearer token`
+
+- Response Code
+
+    `200` `400` `404`
