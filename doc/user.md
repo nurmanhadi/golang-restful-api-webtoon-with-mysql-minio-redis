@@ -135,3 +135,12 @@
 - Response Code
 
     `200` `400` `404`
+
+### 9. Get Total User `GET api/users/total?by={by}`
+> by: enum(daily, weekly, monthly, all-time)
+- Header
+    `Authorization: Bearer token`
+
+- Response Code
+
+    `200` `400` `404`

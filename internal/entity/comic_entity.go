@@ -17,9 +17,9 @@ type Comic struct {
 	CoverFilename *string      `gorm:"type:varchar(255)"`
 	CoverUrl      *string      `gorm:"type:varchar(255)"`
 	PostOn        time.Time    `gorm:"type:timestamp;index"`
-	UpdatedOn     time.Time    `gorm:"type:timestamp;index"`
+	UpdatedOn     *time.Time   `gorm:"type:timestamp;index"`
 	CreatedAt     time.Time    `gorm:"autoCreateTime"`
 	UpdatedAt     time.Time    `gorm:"autoUpdateTime"`
 	Chapters      []Chapter    `gorm:"foreignKey:ComicID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	ComicGenre    []ComicGenre `gorm:"foreignKey:ComicID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	ComicGenres   []ComicGenre `gorm:"foreignKey:ComicID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 }
