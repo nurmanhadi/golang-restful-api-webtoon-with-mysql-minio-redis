@@ -22,4 +22,5 @@ type Comic struct {
 	UpdatedAt     time.Time    `gorm:"autoUpdateTime"`
 	Chapters      []Chapter    `gorm:"foreignKey:ComicID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	ComicGenres   []ComicGenre `gorm:"foreignKey:ComicID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Views         []View       `gorm:"foreignKey:ComicID;constraint;onDelete:CASCADE;onUpdate:CASCADE"`
 }

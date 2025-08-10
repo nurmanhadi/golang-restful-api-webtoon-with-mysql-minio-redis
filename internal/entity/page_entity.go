@@ -4,7 +4,7 @@ import "time"
 
 type Page struct {
 	ID            int64     `gorm:"primaryKey;autoIncrement;type:bigint"`
-	ChapterID     int64     `gorm:"type:bigint"`
+	ChapterID     int64     `gorm:"type:bigint;index"`
 	ImageFilename string    `gorm:"type:varchar(255)"`
 	ImageUrl      string    `gorm:"type:varchar(255)"`
 	CreatedAt     time.Time `gorm:"autoCreateTime"`

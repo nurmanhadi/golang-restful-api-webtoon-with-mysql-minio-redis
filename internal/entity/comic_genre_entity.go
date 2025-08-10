@@ -4,8 +4,8 @@ import "time"
 
 type ComicGenre struct {
 	ID        int64     `gorm:"primaryKey;autoIncrement;type:bigint"`
-	ComicID   int64     `gorm:"type:bigint"`
-	GenreID   int64     `gorm:"type:bigint"`
+	ComicID   int64     `gorm:"type:bigint;index"`
+	GenreID   int64     `gorm:"type:bigint;index"`
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`
 	Comic     *Comic    `gorm:"foreignKey:ComicID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
