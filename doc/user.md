@@ -127,7 +127,7 @@
 
     `200` `400` `404`
 
-### 9. Delete Admin `POST api/users/{userID}/logout`
+### 9. Logout User `POST api/users/{userID}/logout`
 
 - Header
     `Authorization: Bearer token`
