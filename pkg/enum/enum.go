@@ -5,14 +5,14 @@ type STATUS string
 type ROLE string
 
 const (
-	MANGA  TYPE = "manga"
-	MANHUA TYPE = "manhua"
-	MANHWA TYPE = "manhwa"
+	TYPE_MANGA  TYPE = "manga"
+	TYPE_MANHUA TYPE = "manhua"
+	TYPE_MANHWA TYPE = "manhwa"
 
-	COMPLETED STATUS = "completed"
-	HIATUS    STATUS = "hiatus"
-	ONGOING   STATUS = "ongoing"
+	STATUS_COMPLETED STATUS = "completed"
+	STATUS_HIATUS    STATUS = "hiatus"
+	STATUS_ONGOING   STATUS = "ongoing"
 
-	ADMIN ROLE = "admin"
-	USER  ROLE = "user"
+	ROLE_ADMIN ROLE = "admin"
+	ROLE_USER  ROLE = "user"
 )

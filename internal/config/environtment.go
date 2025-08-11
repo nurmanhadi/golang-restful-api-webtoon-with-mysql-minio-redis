@@ -5,6 +5,5 @@ import (
 )
 
 func NewEnvirontment() error {
-	godotenv.Load()
-	return nil
+	return godotenv.Load()
 }

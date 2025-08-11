@@ -1,6 +1,10 @@
 package response
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/gofiber/fiber/v2"
+)
 
 type ErrorResponse struct {
 	Code    int
@@ -15,4 +19,11 @@ func Exception(code int, message string) error {
 		Code:    code,
 		Message: message,
 	}
+}
+
+func Success[T any](c *fiber.Ctx, code int, data T) error {
+	return c.Status(code).JSON(fiber.Map{
+		"data": data,
+		"path": c.OriginalURL(),
+	})
 }
