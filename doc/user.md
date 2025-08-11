@@ -63,7 +63,8 @@
     ```json
     {
         "username": "example", // optional
-        "password": "example" // optional
+        "old_password": "example", // optional, old_password & new_password most be match
+        "new_password": "example" // optional, old_password & new_password most be match
     }
     ```
 
@@ -71,26 +72,7 @@
 
     `200` `400` `404`
 
-### 5. Change Password `POST api/users/{userID}`
-
-- Header
-    `Authorization: Bearer token`
-    `Content-Type: application/json`
-
-- Body
-
-    ```json
-    {
-        "old_password": "example",
-        "new_password": "example" 
-    }
-    ```
-
-- Response Code
-
-    `200` `400` `404`
-
-### 6. Get User `GET api/users/{userID}`
+### 5. Get User `GET api/users/{userID}`
 
 - Header
     `Authorization: Bearer token`
@@ -99,7 +81,7 @@
 
     `200` `400` `404`
 
-### 7. Add Admin `POST api/users/admins`
+### 6. Add Admin `POST api/users/admins`
 
 - Header
     `Authorization: Bearer token`
@@ -118,7 +100,7 @@
 
     `200` `400` `404`
 
-### 8. Delete Admin `DELETE api/users/{userID}/admins`
+### 7. Delete Admin `DELETE api/users/{userID}/admins`
 
 - Header
     `Authorization: Bearer token`
@@ -127,7 +109,7 @@
 
     `200` `400` `404`
 
-### 9. Logout User `POST api/users/{userID}/logout`
+### 8. Logout User `POST api/users/{userID}/logout`
 
 - Header
     `Authorization: Bearer token`

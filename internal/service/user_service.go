@@ -22,6 +22,7 @@ type UserService interface {
 	RegisterUser(request *dto.UserRegisterRequest) error
 	LoginUser(request *dto.UserLoginRequest) (*dto.TokenResponse, error)
 	UploadAvatar(userID string, avatar *multipart.FileHeader) error
+	UpdateUser(userID string, request *dto.UserUpdateRequest) error
 }
 type userService struct {
 	validation     *validator.Validate
@@ -189,5 +190,58 @@ func (s *userService) UploadAvatar(userID string, avatar *multipart.FileHeader) 
 			"avatar_url": avatarUrl,
 		}).Info("upload avatar success")
 	}
+	return nil
+}
+func (s *userService) UpdateUser(userID string, request *dto.UserUpdateRequest) error {
+	if err := s.validation.Struct(request); err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"username": request.Username,
+		}).Warn("validation failed")
+		return err
+	}
+	newUserID, err := strconv.ParseInt(userID, 10, 64)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"user_id": userID,
+		}).Warn("userID most be number")
+		return response.Exception(400, "userID most be number")
+	}
+	user, err := s.userRepository.FindByID(newUserID)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"user_id": newUserID,
+		}).Warn("user not found")
+		return response.Exception(404, "user not found")
+	}
+	if request.Username != nil {
+		user.Username = *request.Username
+	}
+	if request.OldPassword != nil && request.NewPassword != nil {
+		err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(*request.OldPassword))
+		if err != nil {
+			s.logger.WithField("data", fiber.Map{
+				"user_id": newUserID,
+			}).Warn("password wrong")
+			return response.Exception(400, "password wrong")
+		}
+		newPassword, err := bcrypt.GenerateFromPassword([]byte(*request.NewPassword), bcrypt.DefaultCost)
+		if err != nil {
+			s.logger.WithError(err).Error("bcrypt hash password failed")
+			return err
+		}
+		user.Password = string(newPassword)
+	} else {
+		s.logger.WithField("data", fiber.Map{
+			"user_id": newUserID,
+		}).Warn("old password and new password most be match")
+		return response.Exception(400, "old password and new password most be match")
+	}
+	if err := s.userRepository.Save(user); err != nil {
+		s.logger.WithError(err).Error("save user to database failed")
+		return err
+	}
+	s.logger.WithField("data", fiber.Map{
+		"user_id": newUserID,
+	}).Info("update user success")
 	return nil
 }

@@ -24,4 +24,8 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),
 		r.UserHandler.UploadAvatar)
+	user.Patch("/:userID",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),
+		r.UserHandler.UpdateUser)
 }

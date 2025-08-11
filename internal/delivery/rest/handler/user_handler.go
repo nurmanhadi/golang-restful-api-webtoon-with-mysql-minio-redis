@@ -12,6 +12,7 @@ type UserHandler interface {
 	RegisterUser(c *fiber.Ctx) error
 	LoginUser(c *fiber.Ctx) error
 	UploadAvatar(c *fiber.Ctx) error
+	UpdateUser(c *fiber.Ctx) error
 }
 type userHandler struct {
 	userService service.UserService
@@ -49,6 +50,18 @@ func (h *userHandler) UploadAvatar(c *fiber.Ctx) error {
 		return response.Exception(400, err.Error())
 	}
 	err = h.userService.UploadAvatar(userID, avatar)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
+}
+func (h *userHandler) UpdateUser(c *fiber.Ctx) error {
+	userID := c.Params("userID", "0")
+	request := new(dto.UserUpdateRequest)
+	if err := c.BodyParser(request); err != nil {
+		return response.Exception(400, err.Error())
+	}
+	err := h.userService.UpdateUser(userID, request)
 	if err != nil {
 		return err
 	}

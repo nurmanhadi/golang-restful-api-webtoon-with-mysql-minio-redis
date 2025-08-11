@@ -12,7 +12,7 @@ import (
 func JwtSession(c *fiber.Ctx) error {
 	tokenString, err := getTokenFromHeader(c)
 	if err != nil {
-		response.Exception(401, err.Error())
+		return response.Exception(401, err.Error())
 	}
 
 	claims, err := security.JwtVerify(tokenString)
