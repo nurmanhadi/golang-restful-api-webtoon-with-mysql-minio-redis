@@ -13,6 +13,7 @@ type UserHandler interface {
 	LoginUser(c *fiber.Ctx) error
 	UploadAvatar(c *fiber.Ctx) error
 	UpdateUser(c *fiber.Ctx) error
+	GetUserByID(c *fiber.Ctx) error
 }
 type userHandler struct {
 	userService service.UserService
@@ -66,4 +67,12 @@ func (h *userHandler) UpdateUser(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 200, "OK")
+}
+func (h *userHandler) GetUserByID(c *fiber.Ctx) error {
+	userID := c.Params("userID", "0")
+	result, err := h.userService.GetUserByID(userID)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, result)
 }

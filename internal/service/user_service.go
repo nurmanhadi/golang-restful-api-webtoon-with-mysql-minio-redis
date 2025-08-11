@@ -23,6 +23,7 @@ type UserService interface {
 	LoginUser(request *dto.UserLoginRequest) (*dto.TokenResponse, error)
 	UploadAvatar(userID string, avatar *multipart.FileHeader) error
 	UpdateUser(userID string, request *dto.UserUpdateRequest) error
+	GetUserByID(userID string) (*dto.UserResponse, error)
 }
 type userService struct {
 	validation     *validator.Validate
@@ -244,4 +245,33 @@ func (s *userService) UpdateUser(userID string, request *dto.UserUpdateRequest) 
 		"user_id": newUserID,
 	}).Info("update user success")
 	return nil
+}
+func (s *userService) GetUserByID(userID string) (*dto.UserResponse, error) {
+	newUserID, err := strconv.ParseInt(userID, 10, 64)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"user_id": userID,
+		}).Warn("userID most be number")
+		return nil, response.Exception(400, "userID most be number")
+	}
+	user, err := s.userRepository.FindByID(newUserID)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"user_id": newUserID,
+		}).Warn("user not found")
+		return nil, response.Exception(404, "user not found")
+	}
+	result := &dto.UserResponse{
+		ID:             user.ID,
+		Username:       user.Username,
+		Role:           user.Role,
+		AvatarFilename: user.AvatarFilename,
+		AvatarUrl:      user.AvatarUrl,
+		CreatedAt:      user.CreatedAt,
+		UpdatedAt:      user.UpdatedAt,
+	}
+	s.logger.WithField("data", fiber.Map{
+		"user_id": newUserID,
+	}).Info("get user by id success")
+	return result, nil
 }

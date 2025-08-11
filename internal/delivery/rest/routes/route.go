@@ -28,4 +28,8 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),
 		r.UserHandler.UpdateUser)
+	user.Get("/:userID",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),
+		r.UserHandler.GetUserByID)
 }
