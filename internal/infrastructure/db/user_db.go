@@ -55,3 +55,6 @@ func (r *userDB) UpdateAvatar(userID int64, avatarFilename string, avatarUrl str
 		"avatar_url":      avatarUrl,
 	}).Error
 }
+func (r *userDB) Delete(userID int64) error {
+	return r.db.Where("id = ?", userID).Delete(&entity.User{}).Error
+}

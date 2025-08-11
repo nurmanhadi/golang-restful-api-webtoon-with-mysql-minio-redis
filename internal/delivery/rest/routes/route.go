@@ -36,4 +36,8 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.UserHandler.AddAdmin) // add admin
+	user.Delete("/:userID",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.UserHandler.DeleteUser) // delete user
 }

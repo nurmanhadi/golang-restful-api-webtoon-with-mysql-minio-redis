@@ -9,4 +9,5 @@ type UserRepository interface {
 	CountByID(userID int64) (int64, error)
 	FindByID(userID int64) (*entity.User, error)
 	UpdateAvatar(userID int64, avatarFilename string, avatarUrl string) error
+	Delete(userID int64) error
 }

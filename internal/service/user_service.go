@@ -25,6 +25,7 @@ type UserService interface {
 	UpdateUser(userID string, request *dto.UserUpdateRequest) error
 	GetUserByID(userID string) (*dto.UserResponse, error)
 	AddAdmin(request *dto.UserAddAdminRequest) error
+	DeleteUser(userID string) error
 }
 type userService struct {
 	validation     *validator.Validate
@@ -315,5 +316,37 @@ func (s *userService) AddAdmin(request *dto.UserAddAdminRequest) error {
 	s.logger.WithField("data", fiber.Map{
 		"username": request.Username,
 	}).Info("add admin success")
+	return nil
+}
+func (s *userService) DeleteUser(userID string) error {
+	newUserID, err := strconv.ParseInt(userID, 10, 64)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"user_id": userID,
+		}).Warn("userID most be number")
+		return response.Exception(400, "userID most be number")
+	}
+	user, err := s.userRepository.FindByID(newUserID)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"user_id": newUserID,
+		}).Warn("user not found")
+		return response.Exception(404, "user not found")
+	}
+	if user.AvatarFilename != nil && user.AvatarUrl != nil {
+		err := s.s3Repository.RemoveObject(*user.AvatarFilename)
+		if err != nil {
+			s.logger.WithError(err).Error("s3 remove object failed")
+			return err
+		}
+	}
+	err = s.userRepository.Delete(newUserID)
+	if err != nil {
+		s.logger.WithError(err).Error("delete user to database failed")
+		return err
+	}
+	s.logger.WithField("data", fiber.Map{
+		"user_id": newUserID,
+	}).Info("delete user success")
 	return nil
 }

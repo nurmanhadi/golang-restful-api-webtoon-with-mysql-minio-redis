@@ -100,7 +100,7 @@
 
     `201` `400` `404`
 
-### 7. Delete Admin `DELETE api/users/{userID}/admins`
+### 7. Delete User `DELETE api/users/{userID}`
 
 - Header
     `Authorization: Bearer token`
