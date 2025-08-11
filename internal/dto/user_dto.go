@@ -27,3 +27,7 @@ type UserResponse struct {
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
 }
+type UserAddAdminRequest struct {
+	Username string `validate:"required,max=100" json:"username"`
+	Password string `validate:"required,max=100" json:"password"`
+}

@@ -24,6 +24,7 @@ type UserService interface {
 	UploadAvatar(userID string, avatar *multipart.FileHeader) error
 	UpdateUser(userID string, request *dto.UserUpdateRequest) error
 	GetUserByID(userID string) (*dto.UserResponse, error)
+	AddAdmin(request *dto.UserAddAdminRequest) error
 }
 type userService struct {
 	validation     *validator.Validate
@@ -274,4 +275,45 @@ func (s *userService) GetUserByID(userID string) (*dto.UserResponse, error) {
 		"user_id": newUserID,
 	}).Info("get user by id success")
 	return result, nil
+}
+func (s *userService) AddAdmin(request *dto.UserAddAdminRequest) error {
+	if err := s.validation.Struct(request); err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"username": request.Username,
+		}).Warn("validation failed")
+		return err
+	}
+	countUserUsername, err := s.userRepository.CountByUsername(request.Username)
+	if err != nil {
+		s.logger.WithError(err).Error("count user by username failed")
+		return err
+	}
+	if countUserUsername > 0 {
+		s.logger.WithField("data", fiber.Map{
+			"username": request.Username,
+		}).Warn("username already exists")
+		return response.Exception(400, "username already exists")
+	}
+
+	newPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
+	if err != nil {
+		s.logger.WithError(err).Error("bcrypt hash password failed")
+		return err
+	}
+
+	user := &entity.User{
+		Username: request.Username,
+		Password: string(newPassword),
+		Role:     enum.ROLE_ADMIN,
+	}
+
+	if err := s.userRepository.Save(user); err != nil {
+		s.logger.WithError(err).Error("save user to database failed")
+		return err
+	}
+
+	s.logger.WithField("data", fiber.Map{
+		"username": request.Username,
+	}).Info("add admin success")
+	return nil
 }

@@ -98,7 +98,7 @@
 
 - Response Code
 
-    `200` `400` `404`
+    `201` `400` `404`
 
 ### 7. Delete Admin `DELETE api/users/{userID}/admins`
 

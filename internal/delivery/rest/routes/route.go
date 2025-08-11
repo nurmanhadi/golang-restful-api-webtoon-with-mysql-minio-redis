@@ -18,18 +18,22 @@ func (r *Route) Setup() {
 
 	// user
 	user := api.Group("/users")
-	user.Post("/register", r.UserHandler.RegisterUser)
-	user.Post("/login", r.UserHandler.LoginUser)
+	user.Post("/register", r.UserHandler.RegisterUser) // register user
+	user.Post("/login", r.UserHandler.LoginUser)       // login user
 	user.Post("/:userID/avatar",
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),
-		r.UserHandler.UploadAvatar)
+		r.UserHandler.UploadAvatar) // upload avatar
 	user.Patch("/:userID",
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),
-		r.UserHandler.UpdateUser)
+		r.UserHandler.UpdateUser) // update user
 	user.Get("/:userID",
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),
-		r.UserHandler.GetUserByID)
+		r.UserHandler.GetUserByID) // get user by id
+	user.Post("/admins",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.UserHandler.AddAdmin) // add admin
 }

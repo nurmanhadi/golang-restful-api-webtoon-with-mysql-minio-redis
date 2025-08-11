@@ -14,6 +14,7 @@ type UserHandler interface {
 	UploadAvatar(c *fiber.Ctx) error
 	UpdateUser(c *fiber.Ctx) error
 	GetUserByID(c *fiber.Ctx) error
+	AddAdmin(c *fiber.Ctx) error
 }
 type userHandler struct {
 	userService service.UserService
@@ -75,4 +76,15 @@ func (h *userHandler) GetUserByID(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 200, result)
+}
+func (h *userHandler) AddAdmin(c *fiber.Ctx) error {
+	request := new(dto.UserAddAdminRequest)
+	if err := c.BodyParser(request); err != nil {
+		return response.Exception(400, err.Error())
+	}
+	err := h.userService.AddAdmin(request)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 201, "OK")
 }
