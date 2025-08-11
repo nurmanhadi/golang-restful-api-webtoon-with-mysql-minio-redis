@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"welltoon/internal/entity"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -43,4 +44,16 @@ func NewGorm() *gorm.DB {
 	pool.SetConnMaxIdleTime(time.Duration(idleTime) * time.Minute)
 	pool.SetConnMaxLifetime(time.Duration(lifetime) * time.Minute)
 	return db
+}
+
+func AutoMigrate(db *gorm.DB) {
+	db.AutoMigrate(
+		&entity.User{},
+		&entity.Comic{},
+		&entity.Chapter{},
+		&entity.Page{},
+		&entity.Genre{},
+		&entity.ComicGenre{},
+		&entity.View{},
+	)
 }
