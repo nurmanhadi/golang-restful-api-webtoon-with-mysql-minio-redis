@@ -31,3 +31,6 @@ type UserAddAdminRequest struct {
 	Username string `validate:"required,max=100" json:"username"`
 	Password string `validate:"required,max=100" json:"password"`
 }
+type UserTotalResponse struct {
+	TotalUser int64 `json:"total_user"`
+}

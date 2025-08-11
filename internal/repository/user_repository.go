@@ -1,6 +1,9 @@
 package repository
 
-import "welltoon/internal/entity"
+import (
+	"welltoon/internal/entity"
+	"welltoon/pkg/enum"
+)
 
 type UserRepository interface {
 	CountByUsername(username string) (int64, error)
@@ -10,4 +13,5 @@ type UserRepository interface {
 	FindByID(userID int64) (*entity.User, error)
 	UpdateAvatar(userID int64, avatarFilename string, avatarUrl string) error
 	Delete(userID int64) error
+	CountTotal(by enum.BY) (int64, error)
 }

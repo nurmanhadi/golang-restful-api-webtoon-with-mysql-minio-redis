@@ -17,6 +17,7 @@ type UserHandler interface {
 	AddAdmin(c *fiber.Ctx) error
 	DeleteUser(c *fiber.Ctx) error
 	LogoutUser(c *fiber.Ctx) error
+	GetTotalUser(c *fiber.Ctx) error
 }
 type userHandler struct {
 	userService service.UserService
@@ -105,4 +106,12 @@ func (h *userHandler) LogoutUser(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 200, "OK")
+}
+func (h *userHandler) GetTotalUser(c *fiber.Ctx) error {
+	by := c.Query("by", "all-time")
+	result, err := h.userService.GetTotalUser(by)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, result)
 }

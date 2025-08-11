@@ -27,6 +27,7 @@ type UserService interface {
 	AddAdmin(request *dto.UserAddAdminRequest) error
 	DeleteUser(userID string) error
 	LogoutUser(userID string) error
+	GetTotalUser(byStr string) (*dto.UserTotalResponse, error)
 }
 type userService struct {
 	validation     *validator.Validate
@@ -363,4 +364,32 @@ func (s *userService) LogoutUser(userID string) error {
 		"user_id": newUserID,
 	}).Info("logout user success")
 	return nil
+}
+func (s *userService) GetTotalUser(byStr string) (*dto.UserTotalResponse, error) {
+	var by enum.BY
+	switch byStr {
+	case "daily":
+		by = enum.BY_DAILY
+	case "weekly":
+		by = enum.BY_WEEKLY
+	case "monthly":
+		by = enum.BY_MONTHLY
+	case "all-time":
+		by = enum.BY_ALL_TIME
+	default:
+		return nil, response.Exception(400, "query by most be enum(daily, weekly, monthly, all-time)")
+	}
+
+	countTotalUser, err := s.userRepository.CountTotal(by)
+	if err != nil {
+		s.logger.WithError(err).Error("count total to database failed")
+		return nil, err
+	}
+	result := &dto.UserTotalResponse{
+		TotalUser: countTotalUser,
+	}
+	s.logger.WithField("data", fiber.Map{
+		"by": byStr,
+	}).Info("get total user success")
+	return result, nil
 }

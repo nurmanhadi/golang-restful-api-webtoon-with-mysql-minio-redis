@@ -20,10 +20,14 @@ func (r *Route) Setup() {
 	user := api.Group("/users")
 	user.Post("/register", r.UserHandler.RegisterUser) // register user
 	user.Post("/login", r.UserHandler.LoginUser)       // login user
-	user.Post("/:userID/avatar",
+	user.Post("/admins",
 		middleware.JwtSession,
-		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),
-		r.UserHandler.UploadAvatar) // upload avatar
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.UserHandler.AddAdmin) // add admin
+	user.Get("/total",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.UserHandler.GetTotalUser) // get total user
 	user.Patch("/:userID",
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),
@@ -32,14 +36,14 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),
 		r.UserHandler.GetUserByID) // get user by id
-	user.Post("/admins",
-		middleware.JwtSession,
-		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
-		r.UserHandler.AddAdmin) // add admin
 	user.Delete("/:userID",
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.UserHandler.DeleteUser) // delete user
+	user.Post("/:userID/avatar",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),
+		r.UserHandler.UploadAvatar) // upload avatar
 	user.Post("/:userID/logout",
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),

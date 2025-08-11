@@ -3,6 +3,7 @@ package enum
 type TYPE string
 type STATUS string
 type ROLE string
+type BY string
 
 const (
 	TYPE_MANGA  TYPE = "manga"
@@ -15,4 +16,9 @@ const (
 
 	ROLE_ADMIN ROLE = "admin"
 	ROLE_USER  ROLE = "user"
+
+	BY_DAILY    BY = "daily"
+	BY_WEEKLY   BY = "weekly"
+	BY_MONTHLY  BY = "monthly"
+	BY_ALL_TIME BY = "all-time"
 )

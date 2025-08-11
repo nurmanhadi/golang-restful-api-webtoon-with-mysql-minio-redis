@@ -1,8 +1,11 @@
 package db
 
 import (
+	"fmt"
+	"time"
 	"welltoon/internal/entity"
 	"welltoon/internal/repository"
+	"welltoon/pkg/enum"
 
 	"gorm.io/gorm"
 )
@@ -57,4 +60,28 @@ func (r *userDB) UpdateAvatar(userID int64, avatarFilename string, avatarUrl str
 }
 func (r *userDB) Delete(userID int64) error {
 	return r.db.Where("id = ?", userID).Delete(&entity.User{}).Error
+}
+func (r *userDB) CountTotal(by enum.BY) (int64, error) {
+	var count int64
+	query := r.db.Model(&entity.User{})
+	now := time.Now()
+
+	switch by {
+	case enum.BY_DAILY:
+		query = query.Where("created_at >= ?", now.AddDate(0, 0, -1))
+	case enum.BY_WEEKLY:
+		query = query.Where("created_at >= ?", now.AddDate(0, 0, -7))
+	case enum.BY_MONTHLY:
+		query = query.Where("created_at >= ?", now.AddDate(0, -1, 0))
+	case enum.BY_ALL_TIME:
+		//without filter
+	default:
+		return 0, fmt.Errorf("invalid filter by: %s", by)
+	}
+
+	err := query.Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
