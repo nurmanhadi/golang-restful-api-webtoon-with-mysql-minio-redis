@@ -26,6 +26,7 @@ type UserService interface {
 	GetUserByID(userID string) (*dto.UserResponse, error)
 	AddAdmin(request *dto.UserAddAdminRequest) error
 	DeleteUser(userID string) error
+	LogoutUser(userID string) error
 }
 type userService struct {
 	validation     *validator.Validate
@@ -348,5 +349,18 @@ func (s *userService) DeleteUser(userID string) error {
 	s.logger.WithField("data", fiber.Map{
 		"user_id": newUserID,
 	}).Info("delete user success")
+	return nil
+}
+func (s *userService) LogoutUser(userID string) error {
+	newUserID, err := strconv.ParseInt(userID, 10, 64)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"user_id": userID,
+		}).Warn("userID most be number")
+		return response.Exception(400, "userID most be number")
+	}
+	s.logger.WithField("data", fiber.Map{
+		"user_id": newUserID,
+	}).Info("logout user success")
 	return nil
 }

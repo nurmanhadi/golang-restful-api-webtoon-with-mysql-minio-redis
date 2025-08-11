@@ -16,6 +16,7 @@ type UserHandler interface {
 	GetUserByID(c *fiber.Ctx) error
 	AddAdmin(c *fiber.Ctx) error
 	DeleteUser(c *fiber.Ctx) error
+	LogoutUser(c *fiber.Ctx) error
 }
 type userHandler struct {
 	userService service.UserService
@@ -92,6 +93,14 @@ func (h *userHandler) AddAdmin(c *fiber.Ctx) error {
 func (h *userHandler) DeleteUser(c *fiber.Ctx) error {
 	userID := c.Params("userID", "0")
 	err := h.userService.DeleteUser(userID)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
+}
+func (h *userHandler) LogoutUser(c *fiber.Ctx) error {
+	userID := c.Params("userID", "0")
+	err := h.userService.LogoutUser(userID)
 	if err != nil {
 		return err
 	}
