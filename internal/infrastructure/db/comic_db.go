@@ -51,3 +51,31 @@ func (r *comicDB) UpdateCover(comicID int64, coverFilename string, coverUrl stri
 		"cover_url":      coverUrl,
 	}).Error
 }
+func (r *comicDB) FindAllByUpdatedOn(page int, size int) ([]entity.Comic, error) {
+	var comics []entity.Comic
+	err := r.db.
+		Offset((page - 1) * size).
+		Limit(size).
+		Where("updated_on IS NOT NULL").
+		Order("updated_on DESC").
+		Preload("Chapters").
+		Find(&comics).
+		Error
+	if err != nil {
+		return nil, err
+	}
+	return comics, nil
+}
+func (r *comicDB) CountByUpdatedOn() (int64, error) {
+	var count int64
+	err := r.db.
+		Model(&entity.Comic{}).
+		Where("updated_on IS NOT NULL").
+		Order("updated_on DESC").
+		Count(&count).
+		Error
+	if err != nil {
+		return 0, nil
+	}
+	return count, nil
+}

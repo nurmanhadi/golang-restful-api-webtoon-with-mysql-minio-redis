@@ -1,7 +1,9 @@
 package service
 
 import (
+	"math"
 	"mime/multipart"
+	"sort"
 	"strconv"
 	"time"
 	"welltoon/internal/dto"
@@ -22,6 +24,7 @@ type ComicService interface {
 	DeleteComic(comicID string) error
 	GetComicBySlug(slug string) (*dto.ComicResponse, error)
 	UploadCover(comicID string, cover *multipart.FileHeader) error
+	GetComicRecent(page string, size string) (*dto.Pagination[[]dto.ComicResponse], error)
 }
 
 type comicService struct {
@@ -267,4 +270,88 @@ func (s *comicService) UploadCover(comicID string, cover *multipart.FileHeader) 
 		}).Info("upload cover success")
 	}
 	return nil
+}
+func (s *comicService) GetComicRecent(page string, size string) (*dto.Pagination[[]dto.ComicResponse], error) {
+	newPage, err := strconv.Atoi(page)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"page": page,
+		}).Warn("page most be number")
+		return nil, response.Exception(400, "page most be number")
+	}
+	newSize, err := strconv.Atoi(size)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"size": size,
+		}).Warn("size most be number")
+		return nil, response.Exception(400, "size most be number")
+	}
+	comics, err := s.comicRepository.FindAllByUpdatedOn(newPage, newSize)
+	if err != nil {
+		s.logger.WithError(err).Error("find all by update_on to database failed")
+		return nil, err
+	}
+	contents := make([]dto.ComicResponse, 0, len(comics))
+	var totalPage int
+	var totalElement int
+	if len(comics) != 0 {
+		for _, comic := range comics {
+			chapters := make([]dto.ChapterResponse, 0, len(comic.Chapters))
+			if len(comic.Chapters) != 0 {
+				for _, chapter := range comic.Chapters {
+					if chapter.Publish {
+						chapters = append(chapters, dto.ChapterResponse{
+							ID:        chapter.ID,
+							ComicID:   chapter.ComicID,
+							Number:    chapter.Number,
+							Publish:   chapter.Publish,
+							CreatedAt: chapter.CreatedAt,
+							UpdatedAt: chapter.UpdatedAt,
+						})
+					}
+				}
+				if len(chapters) > 0 {
+					sort.Slice(chapters, func(i, j int) bool {
+						return chapters[i].Number > chapters[j].Number // DESC
+					})
+					chapters = chapters[:1]
+				}
+			}
+			contents = append(contents, dto.ComicResponse{
+				ID:            comic.ID,
+				Title:         comic.Title,
+				Slug:          comic.Slug,
+				Synopsis:      comic.Synopsis,
+				Author:        comic.Author,
+				Artist:        comic.Artist,
+				Type:          comic.Type,
+				Status:        comic.Status,
+				CoverFilename: comic.CoverFilename,
+				CoverUrl:      comic.CoverUrl,
+				PostOn:        comic.PostOn,
+				UpdatedOn:     comic.UpdatedOn,
+				CreatedAt:     comic.CreatedAt,
+				UpdatedAt:     comic.UpdatedAt,
+				Chapters:      chapters,
+			})
+		}
+		countTotalElement, err := s.comicRepository.CountByUpdatedOn()
+		if err != nil {
+			s.logger.WithError(err).Error("count by total updated_on to database failed")
+			return nil, err
+		}
+		totalElement = int(countTotalElement)
+		totalPage = int(math.Ceil(float64(countTotalElement) / float64(newSize)))
+	}
+	result := &dto.Pagination[[]dto.ComicResponse]{
+		Contents:     contents,
+		Page:         newPage,
+		Size:         newSize,
+		TotalPage:    totalPage,
+		TotalElement: totalElement,
+	}
+	s.logger.WithField("data", fiber.Map{
+		"total_element": totalElement,
+	}).Info("get comic recent success")
+	return result, nil
 }
