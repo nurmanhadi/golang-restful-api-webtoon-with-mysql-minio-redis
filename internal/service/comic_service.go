@@ -18,6 +18,7 @@ type ComicService interface {
 	AddComic(request *dto.ComicAddRequest) error
 	UpdateComic(comicID string, request *dto.ComicUpdateRequest) error
 	DeleteComic(comicID string) error
+	GetComicBySlug(slug string) (*dto.ComicResponse, error)
 }
 
 type comicService struct {
@@ -168,4 +169,30 @@ func (s *comicService) DeleteComic(comicID string) error {
 		"comic_id": newComicID,
 	}).Info("delete comic success")
 	return nil
+}
+func (s *comicService) GetComicBySlug(slug string) (*dto.ComicResponse, error) {
+	comic, err := s.comicRepository.FindBySlug(slug)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"slug": slug,
+		}).Warn("comic not found")
+		return nil, response.Exception(404, "comic not found")
+	}
+	result := &dto.ComicResponse{
+		ID:            comic.ID,
+		Title:         comic.Title,
+		Slug:          comic.Slug,
+		Synopsis:      comic.Synopsis,
+		Author:        comic.Author,
+		Artist:        comic.Artist,
+		Type:          comic.Type,
+		Status:        comic.Status,
+		CoverFilename: comic.CoverFilename,
+		CoverUrl:      comic.CoverUrl,
+		PostOn:        comic.PostOn,
+		UpdatedOn:     comic.UpdatedOn,
+		CreatedAt:     comic.CreatedAt,
+		UpdatedAt:     comic.UpdatedAt,
+	}
+	return result, nil
 }
