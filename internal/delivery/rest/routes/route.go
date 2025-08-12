@@ -65,4 +65,8 @@ func (r *Route) Setup() {
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.ComicHandler.DeleteComic) // delete comic
 	comic.Get("/:slug", r.ComicHandler.GetComicBySlug) // get comic by slug
+	comic.Post("/:comicID/cover",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.ComicHandler.UploadCover) // upload cover
 }

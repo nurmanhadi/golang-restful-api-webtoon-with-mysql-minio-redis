@@ -1,12 +1,14 @@
 package service
 
 import (
+	"mime/multipart"
 	"strconv"
 	"time"
 	"welltoon/internal/dto"
 	"welltoon/internal/entity"
 	"welltoon/internal/repository"
 	"welltoon/pkg"
+	"welltoon/pkg/image"
 	"welltoon/pkg/response"
 
 	"github.com/go-playground/validator/v10"
@@ -19,6 +21,7 @@ type ComicService interface {
 	UpdateComic(comicID string, request *dto.ComicUpdateRequest) error
 	DeleteComic(comicID string) error
 	GetComicBySlug(slug string) (*dto.ComicResponse, error)
+	UploadCover(comicID string, cover *multipart.FileHeader) error
 }
 
 type comicService struct {
@@ -195,4 +198,73 @@ func (s *comicService) GetComicBySlug(slug string) (*dto.ComicResponse, error) {
 		UpdatedAt:     comic.UpdatedAt,
 	}
 	return result, nil
+}
+func (s *comicService) UploadCover(comicID string, cover *multipart.FileHeader) error {
+	newComicID, err := strconv.ParseInt(comicID, 10, 64)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"comic_id": comicID,
+		}).Warn("comicID most be number")
+		return response.Exception(400, "comicID most be number")
+	}
+	err = image.Validate(cover.Filename)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"cover_filename": cover.Filename,
+		}).Warn(err.Error())
+		return response.Exception(400, err.Error())
+	}
+	comic, err := s.comicRepository.FindByID(newComicID)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"comic_id": newComicID,
+		}).Warn("comic not found")
+		return response.Exception(404, "comic not found")
+	}
+	if comic.CoverFilename != nil && comic.CoverUrl != nil {
+		file, err := image.CompressToWebp(cover)
+		if err != nil {
+			s.logger.WithError(err).Error("compress image to webp failed")
+			return err
+		}
+		file.Filename = *comic.CoverFilename
+		err = s.s3Repository.PutObject(file)
+		if err != nil {
+			s.logger.WithError(err).Error("s3 put object failed")
+			return err
+		}
+		s.logger.WithField("data", fiber.Map{
+			"cover_url": comic.CoverUrl,
+		}).Info("upload cover success")
+	} else {
+		file, err := image.CompressToWebp(cover)
+		if err != nil {
+			s.logger.WithError(err).Error("compress image to webp failed")
+			return err
+		}
+		coverUrl, err := pkg.S3GenerateUrl(file.Filename)
+		if err != nil {
+			s.logger.WithError(err).Error("s3 generate url failed")
+			return err
+		}
+		err = s.s3Repository.PutObject(file)
+		if err != nil {
+			s.logger.WithError(err).Error("s3 put object failed")
+			return err
+		}
+		err = s.comicRepository.UpdateCover(newComicID, file.Filename, coverUrl)
+		if err != nil {
+			err = s.s3Repository.RemoveObject(file.Filename)
+			if err != nil {
+				s.logger.WithError(err).Error("s3 remove object failed")
+				return err
+			}
+			s.logger.WithError(err).Error("update cover failed")
+			return err
+		}
+		s.logger.WithField("data", fiber.Map{
+			"cover_url": coverUrl,
+		}).Info("upload cover success")
+	}
+	return nil
 }

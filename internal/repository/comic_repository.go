@@ -8,4 +8,5 @@ type ComicRepository interface {
 	FindByID(comicID int64) (*entity.Comic, error)
 	FindBySlug(slug string) (*entity.Comic, error)
 	Delete(comicID int64) error
+	UpdateCover(comicID int64, coverFilename string, coverUrl string) error
 }

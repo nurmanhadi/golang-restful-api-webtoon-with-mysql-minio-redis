@@ -45,3 +45,9 @@ func (r *comicDB) FindBySlug(slug string) (*entity.Comic, error) {
 func (r *comicDB) Delete(comicID int64) error {
 	return r.db.Where("id = ?", comicID).Delete(&entity.Comic{}).Error
 }
+func (r *comicDB) UpdateCover(comicID int64, coverFilename string, coverUrl string) error {
+	return r.db.Model(&entity.Comic{}).Where("id = ?", comicID).Updates(map[string]interface{}{
+		"cover_filename": coverFilename,
+		"cover_url":      coverUrl,
+	}).Error
+}

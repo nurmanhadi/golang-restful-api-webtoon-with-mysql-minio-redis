@@ -13,6 +13,7 @@ type ComicHandler interface {
 	UpdateComic(c *fiber.Ctx) error
 	DeleteComic(c *fiber.Ctx) error
 	GetComicBySlug(c *fiber.Ctx) error
+	UploadCover(c *fiber.Ctx) error
 }
 type comicHandler struct {
 	comicService service.ComicService
@@ -59,4 +60,16 @@ func (h *comicHandler) GetComicBySlug(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 200, result)
+}
+func (h *comicHandler) UploadCover(c *fiber.Ctx) error {
+	comicID := c.Params("comicID")
+	cover, err := c.FormFile("cover")
+	if err != nil {
+		return response.Exception(400, "cover required")
+	}
+	err = h.comicService.UploadCover(comicID, cover)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
 }
