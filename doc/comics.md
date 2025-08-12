@@ -39,7 +39,6 @@
         "synopsis": "example", // optional
         "author": "axample", // optional
         "artist": "axample", // optional
-        "artist": "axample", // optional
         "type": "axample", // enum(manga,manhua,manhwa), optional
         "status": "axample", // enum(completed,hiatus,ongoing), optional
     }
@@ -63,7 +62,7 @@
 
     `200` `404`
 
-### 4. Upload Cover `POST api/comics/{comicId}`
+### 4. Upload Cover `POST api/comics/{comicId}/cover`
 
 - Header
 

@@ -52,5 +52,12 @@ func (r *Route) Setup() {
 
 	// comic
 	comic := api.Group("/comics")
-	comic.Post("/", r.ComicHandler.AddComic)
+	comic.Post("/",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.ComicHandler.AddComic) // add comic
+	comic.Patch("/:comicID",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.ComicHandler.UpdateComic) // update comic
 }

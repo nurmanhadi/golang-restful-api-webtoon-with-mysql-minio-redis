@@ -26,3 +26,19 @@ func (r *comicDB) CountBySlug(slug string) (int64, error) {
 	}
 	return count, nil
 }
+func (r *comicDB) FindByID(comicID int64) (*entity.Comic, error) {
+	comic := new(entity.Comic)
+	err := r.db.Where("id = ?", comicID).First(comic).Error
+	if err != nil {
+		return nil, err
+	}
+	return comic, nil
+}
+func (r *comicDB) FindBySlug(slug string) (*entity.Comic, error) {
+	comic := new(entity.Comic)
+	err := r.db.Where("slug = ?", slug).First(comic).Error
+	if err != nil {
+		return nil, err
+	}
+	return comic, nil
+}
