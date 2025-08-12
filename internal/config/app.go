@@ -32,17 +32,21 @@ func App(conf *Configuration) {
 
 	// DB
 	userDB := db.NewUserDB(conf.DB)
+	comicDB := db.NewComicDB(conf.DB)
 
 	// service
 	userServ := service.NewUserService(conf.Validation, conf.Logger, userDB, s3)
+	comicServ := service.NewComicService(conf.Logger, conf.Validation, comicDB, s3)
 
 	// handler
 	userHand := handler.NewUserHandler(userServ)
+	comicHand := handler.NewComicHandler(comicServ)
 
 	// routes
 	route := &routes.Route{
-		App:         conf.App,
-		UserHandler: userHand,
+		App:          conf.App,
+		UserHandler:  userHand,
+		ComicHandler: comicHand,
 	}
 	route.Setup()
 }

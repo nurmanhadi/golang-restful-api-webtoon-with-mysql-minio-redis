@@ -1,0 +1,31 @@
+package handler
+
+import (
+	"welltoon/internal/dto"
+	"welltoon/internal/service"
+	"welltoon/pkg/response"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+type ComicHandler interface {
+	AddComic(c *fiber.Ctx) error
+}
+type comicHandler struct {
+	comicService service.ComicService
+}
+
+func NewComicHandler(comicService service.ComicService) ComicHandler {
+	return &comicHandler{comicService: comicService}
+}
+func (h *comicHandler) AddComic(c *fiber.Ctx) error {
+	request := new(dto.ComicAddRequest)
+	if err := c.BodyParser(request); err != nil {
+		return response.Exception(400, err.Error())
+	}
+	err := h.comicService.AddComic(request)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 201, "OK")
+}

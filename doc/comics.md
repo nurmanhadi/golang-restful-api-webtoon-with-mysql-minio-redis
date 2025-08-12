@@ -15,7 +15,6 @@
         "synopsis": "example", // optional
         "author": "axample",
         "artist": "axample",
-        "artist": "axample",
         "type": "axample", // enum(manga,manhua,manhwa)
         "status": "axample", // enum(completed,hiatus,ongoing)
     }

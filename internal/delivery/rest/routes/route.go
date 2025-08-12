@@ -9,8 +9,9 @@ import (
 )
 
 type Route struct {
-	App         *fiber.App
-	UserHandler handler.UserHandler
+	App          *fiber.App
+	UserHandler  handler.UserHandler
+	ComicHandler handler.ComicHandler
 }
 
 func (r *Route) Setup() {
@@ -48,4 +49,8 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_USER), string(enum.ROLE_ADMIN)}),
 		r.UserHandler.LogoutUser) // logout user
+
+	// comic
+	comic := api.Group("/comics")
+	comic.Post("/", r.ComicHandler.AddComic)
 }
