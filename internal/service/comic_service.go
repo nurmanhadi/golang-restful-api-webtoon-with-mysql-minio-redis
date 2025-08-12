@@ -17,6 +17,7 @@ import (
 type ComicService interface {
 	AddComic(request *dto.ComicAddRequest) error
 	UpdateComic(comicID string, request *dto.ComicUpdateRequest) error
+	DeleteComic(comicID string) error
 }
 
 type comicService struct {
@@ -134,5 +135,37 @@ func (s *comicService) UpdateComic(comicID string, request *dto.ComicUpdateReque
 		return err
 	}
 	s.logger.WithField("data", comic).Info("add comic success")
+	return nil
+}
+func (s *comicService) DeleteComic(comicID string) error {
+	newComicID, err := strconv.ParseInt(comicID, 10, 64)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"comic_id": comicID,
+		}).Warn("comicID most be number")
+		return response.Exception(400, "comicID most be number")
+	}
+	comic, err := s.comicRepository.FindByID(newComicID)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"comic_id": newComicID,
+		}).Warn("comic not found")
+		return response.Exception(404, "comic not found")
+	}
+	if comic.CoverFilename != nil && comic.CoverUrl != nil {
+		err := s.s3Repository.RemoveObject(*comic.CoverFilename)
+		if err != nil {
+			s.logger.WithError(err).Error("s3 remove object failed")
+			return err
+		}
+	}
+	err = s.comicRepository.Delete(newComicID)
+	if err != nil {
+		s.logger.WithError(err).Error("delete comic to database failed")
+		return err
+	}
+	s.logger.WithField("data", fiber.Map{
+		"comic_id": newComicID,
+	}).Info("delete comic success")
 	return nil
 }

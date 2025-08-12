@@ -11,6 +11,7 @@ import (
 type ComicHandler interface {
 	AddComic(c *fiber.Ctx) error
 	UpdateComic(c *fiber.Ctx) error
+	DeleteComic(c *fiber.Ctx) error
 }
 type comicHandler struct {
 	comicService service.ComicService
@@ -37,6 +38,14 @@ func (h *comicHandler) UpdateComic(c *fiber.Ctx) error {
 		return response.Exception(400, err.Error())
 	}
 	err := h.comicService.UpdateComic(comicID, request)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
+}
+func (h *comicHandler) DeleteComic(c *fiber.Ctx) error {
+	comicID := c.Params("comicID")
+	err := h.comicService.DeleteComic(comicID)
 	if err != nil {
 		return err
 	}

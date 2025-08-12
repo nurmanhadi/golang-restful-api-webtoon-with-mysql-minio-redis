@@ -60,4 +60,8 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.ComicHandler.UpdateComic) // update comic
+	comic.Delete("/:comicID",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.ComicHandler.DeleteComic) // delete comic
 }

@@ -42,3 +42,6 @@ func (r *comicDB) FindBySlug(slug string) (*entity.Comic, error) {
 	}
 	return comic, nil
 }
+func (r *comicDB) Delete(comicID int64) error {
+	return r.db.Where("id = ?", comicID).Delete(&entity.Comic{}).Error
+}
