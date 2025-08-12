@@ -71,7 +71,6 @@ func (r *comicDB) CountByUpdatedOn() (int64, error) {
 	err := r.db.
 		Model(&entity.Comic{}).
 		Where("updated_on IS NOT NULL").
-		Order("updated_on DESC").
 		Count(&count).
 		Error
 	if err != nil {
@@ -83,6 +82,33 @@ func (r *comicDB) Count() (int64, error) {
 	var count int64
 	err := r.db.
 		Model(&entity.Comic{}).
+		Count(&count).
+		Error
+	if err != nil {
+		return 0, nil
+	}
+	return count, nil
+}
+func (r *comicDB) FindAllByKeyword(keyword string, page int, size int) ([]entity.Comic, error) {
+	var comics []entity.Comic
+	key := "%" + keyword + "%"
+	err := r.db.
+		Offset((page-1)*size).
+		Limit(size).
+		Where("updated_on IS NOT NULL AND (title LIKE ? OR synopsis LIKE ?)", key, key).
+		Find(&comics).
+		Error
+	if err != nil {
+		return nil, err
+	}
+	return comics, nil
+}
+func (r *comicDB) CountByKeyword(keyword string) (int64, error) {
+	var count int64
+	key := "%" + keyword + "%"
+	err := r.db.
+		Model(&entity.Comic{}).
+		Where("updated_on IS NOT NULL AND (title LIKE ? OR synopsis LIKE ?)", key, key).
 		Count(&count).
 		Error
 	if err != nil {

@@ -26,6 +26,7 @@ type ComicService interface {
 	UploadCover(comicID string, cover *multipart.FileHeader) error
 	GetComicRecent(page string, size string) (*dto.Pagination[[]dto.ComicResponse], error)
 	GetTotalComic() (*dto.ComicTotalResponse, error)
+	SearchComic(keyword, page, size string) (*dto.Pagination[[]dto.ComicResponse], error)
 }
 
 type comicService struct {
@@ -368,5 +369,67 @@ func (s *comicService) GetTotalComic() (*dto.ComicTotalResponse, error) {
 	s.logger.WithField("data", fiber.Map{
 		"total_comic": totalComic,
 	}).Info("get total comic success")
+	return result, nil
+}
+func (s *comicService) SearchComic(keyword, page, size string) (*dto.Pagination[[]dto.ComicResponse], error) {
+	newPage, err := strconv.Atoi(page)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"page": page,
+		}).Warn("page most be number")
+		return nil, response.Exception(400, "page most be number")
+	}
+	newSize, err := strconv.Atoi(size)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"size": size,
+		}).Warn("size most be number")
+		return nil, response.Exception(400, "size most be number")
+	}
+	comics, err := s.comicRepository.FindAllByKeyword(keyword, newPage, newSize)
+	if err != nil {
+		s.logger.WithError(err).Error("find all by keyword to database failed")
+		return nil, err
+	}
+	contents := make([]dto.ComicResponse, 0, len(comics))
+	var totalPage int
+	var totalElement int
+	if len(comics) != 0 {
+		for _, comic := range comics {
+			contents = append(contents, dto.ComicResponse{
+				ID:            comic.ID,
+				Title:         comic.Title,
+				Slug:          comic.Slug,
+				Synopsis:      comic.Synopsis,
+				Author:        comic.Author,
+				Artist:        comic.Artist,
+				Type:          comic.Type,
+				Status:        comic.Status,
+				CoverFilename: comic.CoverFilename,
+				CoverUrl:      comic.CoverUrl,
+				PostOn:        comic.PostOn,
+				UpdatedOn:     comic.UpdatedOn,
+				CreatedAt:     comic.CreatedAt,
+				UpdatedAt:     comic.UpdatedAt,
+			})
+		}
+		countTotalElement, err := s.comicRepository.CountByKeyword(keyword)
+		if err != nil {
+			s.logger.WithError(err).Error("count by keyword to database failed")
+			return nil, err
+		}
+		totalElement = int(countTotalElement)
+		totalPage = int(math.Ceil(float64(countTotalElement) / float64(newSize)))
+	}
+	result := &dto.Pagination[[]dto.ComicResponse]{
+		Contents:     contents,
+		Page:         newPage,
+		Size:         newSize,
+		TotalPage:    totalPage,
+		TotalElement: totalElement,
+	}
+	s.logger.WithField("data", fiber.Map{
+		"keyword": keyword,
+	}).Info("search comic success")
 	return result, nil
 }

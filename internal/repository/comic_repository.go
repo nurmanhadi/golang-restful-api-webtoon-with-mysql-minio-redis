@@ -12,4 +12,6 @@ type ComicRepository interface {
 	FindAllByUpdatedOn(page int, size int) ([]entity.Comic, error)
 	CountByUpdatedOn() (int64, error)
 	Count() (int64, error)
+	FindAllByKeyword(keyword string, page int, size int) ([]entity.Comic, error)
+	CountByKeyword(keyword string) (int64, error)
 }
