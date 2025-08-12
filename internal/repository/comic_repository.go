@@ -11,4 +11,5 @@ type ComicRepository interface {
 	UpdateCover(comicID int64, coverFilename string, coverUrl string) error
 	FindAllByUpdatedOn(page int, size int) ([]entity.Comic, error)
 	CountByUpdatedOn() (int64, error)
+	Count() (int64, error)
 }

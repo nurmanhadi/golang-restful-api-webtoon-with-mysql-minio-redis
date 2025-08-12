@@ -15,6 +15,7 @@ type ComicHandler interface {
 	GetComicBySlug(c *fiber.Ctx) error
 	UploadCover(c *fiber.Ctx) error
 	GetComicRecent(c *fiber.Ctx) error
+	GetTotalComic(c *fiber.Ctx) error
 }
 type comicHandler struct {
 	comicService service.ComicService
@@ -78,6 +79,13 @@ func (h *comicHandler) GetComicRecent(c *fiber.Ctx) error {
 	page := c.Query("page", "1")
 	size := c.Query("size", "10")
 	result, err := h.comicService.GetComicRecent(page, size)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, result)
+}
+func (h *comicHandler) GetTotalComic(c *fiber.Ctx) error {
+	result, err := h.comicService.GetTotalComic()
 	if err != nil {
 		return err
 	}

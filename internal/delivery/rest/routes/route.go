@@ -57,6 +57,10 @@ func (r *Route) Setup() {
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.ComicHandler.AddComic) // add comic
 	comic.Get("/recent", r.ComicHandler.GetComicRecent) // get comic recent
+	comic.Get("/total",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.ComicHandler.GetTotalComic) // get total comic
 	comic.Patch("/:comicID",
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),

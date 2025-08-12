@@ -91,7 +91,7 @@
 
     `200` `404`
 
-### 7. Get Comic Popular `GET api/comics/popular?by={by}&page={page}&size={size}`
+### 7. Get Comic Popular `GET api/comics/popular?by={by}&page={page}&size={size}` <!--- SKIP DULU -->
 
 > by: enum(daily, weekly, monthly, all-time)
 

@@ -79,3 +79,14 @@ func (r *comicDB) CountByUpdatedOn() (int64, error) {
 	}
 	return count, nil
 }
+func (r *comicDB) Count() (int64, error) {
+	var count int64
+	err := r.db.
+		Model(&entity.Comic{}).
+		Count(&count).
+		Error
+	if err != nil {
+		return 0, nil
+	}
+	return count, nil
+}

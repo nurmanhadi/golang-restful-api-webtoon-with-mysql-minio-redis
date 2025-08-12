@@ -25,6 +25,7 @@ type ComicService interface {
 	GetComicBySlug(slug string) (*dto.ComicResponse, error)
 	UploadCover(comicID string, cover *multipart.FileHeader) error
 	GetComicRecent(page string, size string) (*dto.Pagination[[]dto.ComicResponse], error)
+	GetTotalComic() (*dto.ComicTotalResponse, error)
 }
 
 type comicService struct {
@@ -353,5 +354,19 @@ func (s *comicService) GetComicRecent(page string, size string) (*dto.Pagination
 	s.logger.WithField("data", fiber.Map{
 		"total_element": totalElement,
 	}).Info("get comic recent success")
+	return result, nil
+}
+func (s *comicService) GetTotalComic() (*dto.ComicTotalResponse, error) {
+	totalComic, err := s.comicRepository.Count()
+	if err != nil {
+		s.logger.WithError(err).Error("count to database failed")
+		return nil, err
+	}
+	result := &dto.ComicTotalResponse{
+		TotalComic: int(totalComic),
+	}
+	s.logger.WithField("data", fiber.Map{
+		"total_comic": totalComic,
+	}).Info("get total comic success")
 	return result, nil
 }
