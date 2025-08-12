@@ -116,3 +116,29 @@ func (r *comicDB) CountByKeyword(keyword string) (int64, error) {
 	}
 	return count, nil
 }
+func (r *comicDB) FindAllByTypeAndStatus(typeComic, status string, page int, size int) ([]entity.Comic, error) {
+	var comics []entity.Comic
+	err := r.db.
+		Offset((page-1)*size).
+		Limit(size).
+		Where("updated_on IS NOT NULL AND type = ? AND status = ?", typeComic, status).
+		Order("updated_on DESC").
+		Find(&comics).
+		Error
+	if err != nil {
+		return nil, err
+	}
+	return comics, nil
+}
+func (r *comicDB) CountByTypeAndStatus(typeComic, status string) (int64, error) {
+	var count int64
+	err := r.db.
+		Model(&entity.Comic{}).
+		Where("updated_on IS NOT NULL AND type = ? AND status = ?", typeComic, status).
+		Count(&count).
+		Error
+	if err != nil {
+		return 0, nil
+	}
+	return count, nil
+}

@@ -17,6 +17,7 @@ type ComicHandler interface {
 	GetComicRecent(c *fiber.Ctx) error
 	GetTotalComic(c *fiber.Ctx) error
 	SearchComic(c *fiber.Ctx) error
+	GetComicByTypeAndStatus(c *fiber.Ctx) error
 }
 type comicHandler struct {
 	comicService service.ComicService
@@ -97,6 +98,21 @@ func (h *comicHandler) SearchComic(c *fiber.Ctx) error {
 	page := c.Query("page", "1")
 	size := c.Query("size", "10")
 	result, err := h.comicService.SearchComic(keyword, page, size)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, result)
+}
+func (h *comicHandler) GetComicByTypeAndStatus(c *fiber.Ctx) error {
+	typeComic := c.Query("type", "none")
+	status := c.Query("status", "none")
+	page := c.Query("page", "1")
+	size := c.Query("size", "10")
+	request := &dto.EnumFilter{
+		Type:   &typeComic,
+		Status: &status,
+	}
+	result, err := h.comicService.GetComicByTypeAndStatus(request, page, size)
 	if err != nil {
 		return err
 	}
