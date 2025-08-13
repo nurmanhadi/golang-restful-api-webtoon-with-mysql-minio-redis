@@ -123,9 +123,13 @@
 
     `200` `404`
 
-### 11. Get Related Comic `GET api/comics/{slug}/related?page={page}&size={size}`
+### 11. Get Comic Related `GET api/comics/{slug}/related`
+    
+- Response Code
 
-> type: enum(manga, manhua, manhwa), status: enum(completed, hiatus, ongoing)
+    `200` `404`
+
+### 11. Get Comic New `GET api/comics/{slug}/related`
     
 - Response Code
 

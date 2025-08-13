@@ -28,6 +28,7 @@ type ComicService interface {
 	GetTotalComic() (*dto.ComicTotalResponse, error)
 	SearchComic(keyword, page, size string) (*dto.Pagination[[]dto.ComicResponse], error)
 	GetComicByTypeAndStatus(request *dto.EnumFilter, page, size string) (*dto.Pagination[[]dto.ComicResponse], error)
+	GetComicRelated(slug string) ([]dto.ComicResponse, error)
 }
 
 type comicService struct {
@@ -203,6 +204,9 @@ func (s *comicService) GetComicBySlug(slug string) (*dto.ComicResponse, error) {
 		CreatedAt:     comic.CreatedAt,
 		UpdatedAt:     comic.UpdatedAt,
 	}
+	s.logger.WithField("data", fiber.Map{
+		"slug": slug,
+	}).Info("get comic by slug success")
 	return result, nil
 }
 func (s *comicService) UploadCover(comicID string, cover *multipart.FileHeader) error {
@@ -496,5 +500,44 @@ func (s *comicService) GetComicByTypeAndStatus(request *dto.EnumFilter, page, si
 		TotalElement: totalElement,
 	}
 	s.logger.WithField("data", request).Info("get comic by type and status")
+	return result, nil
+}
+func (s *comicService) GetComicRelated(slug string) ([]dto.ComicResponse, error) {
+	comic, err := s.comicRepository.FindBySlug(slug)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"slug": slug,
+		}).Warn("comic not found")
+		return nil, response.Exception(404, "comic not found")
+	}
+	comics, err := s.comicRepository.FindByTitle(comic.Title)
+	if err != nil {
+		s.logger.WithError(err).Error("find by title to database failed")
+		return nil, err
+	}
+	result := make([]dto.ComicResponse, 0, len(comics))
+	if len(comics) != 0 {
+		for _, c := range comics {
+			result = append(result, dto.ComicResponse{
+				ID:            c.ID,
+				Title:         c.Title,
+				Slug:          c.Slug,
+				Synopsis:      c.Synopsis,
+				Author:        c.Author,
+				Artist:        c.Artist,
+				Type:          c.Type,
+				Status:        c.Status,
+				CoverFilename: c.CoverFilename,
+				CoverUrl:      c.CoverUrl,
+				PostOn:        c.PostOn,
+				UpdatedOn:     c.UpdatedOn,
+				CreatedAt:     c.CreatedAt,
+				UpdatedAt:     c.UpdatedAt,
+			})
+		}
+	}
+	s.logger.WithField("data", fiber.Map{
+		"total_element": len(comics),
+	}).Info("get comic related success")
 	return result, nil
 }

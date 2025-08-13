@@ -142,3 +142,16 @@ func (r *comicDB) CountByTypeAndStatus(typeComic, status string) (int64, error) 
 	}
 	return count, nil
 }
+func (r *comicDB) FindByTitle(title string) ([]entity.Comic, error) {
+	var comics []entity.Comic
+	key := "%" + title + "%"
+	err := r.db.
+		Limit(6).
+		Where("updated_on IS NOT NULL AND title != ? AND title LIKE ?", title, key).
+		Find(&comics).
+		Error
+	if err != nil {
+		return nil, err
+	}
+	return comics, nil
+}
