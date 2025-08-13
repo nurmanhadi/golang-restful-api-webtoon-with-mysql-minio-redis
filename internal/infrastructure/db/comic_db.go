@@ -155,3 +155,15 @@ func (r *comicDB) FindByTitle(title string) ([]entity.Comic, error) {
 	}
 	return comics, nil
 }
+func (r *comicDB) FindByCreatedAt() ([]entity.Comic, error) {
+	var comics []entity.Comic
+	err := r.db.
+		Limit(10).
+		Order("created_at DESC").
+		Find(&comics).
+		Error
+	if err != nil {
+		return nil, err
+	}
+	return comics, nil
+}

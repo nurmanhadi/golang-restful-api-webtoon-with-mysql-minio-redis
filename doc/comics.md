@@ -129,7 +129,7 @@
 
     `200` `404`
 
-### 11. Get Comic New `GET api/comics/{slug}/related`
+### 11. Get Comic New `GET api/comics/new`
     
 - Response Code
 

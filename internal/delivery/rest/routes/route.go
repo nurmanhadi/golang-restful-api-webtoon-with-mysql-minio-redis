@@ -59,6 +59,7 @@ func (r *Route) Setup() {
 	comic.Get("/", r.ComicHandler.GetComicByTypeAndStatus) // get comic by type and status
 	comic.Get("/search", r.ComicHandler.SearchComic)       // search comic
 	comic.Get("/recent", r.ComicHandler.GetComicRecent)    // get comic recent
+	comic.Get("/new", r.ComicHandler.GetComicNew)          // get comic new
 	comic.Get("/total",
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),

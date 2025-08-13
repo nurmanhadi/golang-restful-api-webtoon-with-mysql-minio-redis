@@ -17,4 +17,5 @@ type ComicRepository interface {
 	FindAllByTypeAndStatus(typeComic, status string, page int, size int) ([]entity.Comic, error)
 	CountByTypeAndStatus(typeComic, status string) (int64, error)
 	FindByTitle(title string) ([]entity.Comic, error)
+	FindByCreatedAt() ([]entity.Comic, error)
 }

@@ -19,6 +19,7 @@ type ComicHandler interface {
 	SearchComic(c *fiber.Ctx) error
 	GetComicByTypeAndStatus(c *fiber.Ctx) error
 	GetComicRelated(c *fiber.Ctx) error
+	GetComicNew(c *fiber.Ctx) error
 }
 type comicHandler struct {
 	comicService service.ComicService
@@ -122,6 +123,13 @@ func (h *comicHandler) GetComicByTypeAndStatus(c *fiber.Ctx) error {
 func (h *comicHandler) GetComicRelated(c *fiber.Ctx) error {
 	slug := c.Params("slug")
 	result, err := h.comicService.GetComicRelated(slug)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, result)
+}
+func (h *comicHandler) GetComicNew(c *fiber.Ctx) error {
+	result, err := h.comicService.GetComicNew()
 	if err != nil {
 		return err
 	}

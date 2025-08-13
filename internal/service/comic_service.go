@@ -29,6 +29,7 @@ type ComicService interface {
 	SearchComic(keyword, page, size string) (*dto.Pagination[[]dto.ComicResponse], error)
 	GetComicByTypeAndStatus(request *dto.EnumFilter, page, size string) (*dto.Pagination[[]dto.ComicResponse], error)
 	GetComicRelated(slug string) ([]dto.ComicResponse, error)
+	GetComicNew() ([]dto.ComicResponse, error)
 }
 
 type comicService struct {
@@ -513,6 +514,38 @@ func (s *comicService) GetComicRelated(slug string) ([]dto.ComicResponse, error)
 	comics, err := s.comicRepository.FindByTitle(comic.Title)
 	if err != nil {
 		s.logger.WithError(err).Error("find by title to database failed")
+		return nil, err
+	}
+	result := make([]dto.ComicResponse, 0, len(comics))
+	if len(comics) != 0 {
+		for _, c := range comics {
+			result = append(result, dto.ComicResponse{
+				ID:            c.ID,
+				Title:         c.Title,
+				Slug:          c.Slug,
+				Synopsis:      c.Synopsis,
+				Author:        c.Author,
+				Artist:        c.Artist,
+				Type:          c.Type,
+				Status:        c.Status,
+				CoverFilename: c.CoverFilename,
+				CoverUrl:      c.CoverUrl,
+				PostOn:        c.PostOn,
+				UpdatedOn:     c.UpdatedOn,
+				CreatedAt:     c.CreatedAt,
+				UpdatedAt:     c.UpdatedAt,
+			})
+		}
+	}
+	s.logger.WithField("data", fiber.Map{
+		"total_element": len(comics),
+	}).Info("get comic related success")
+	return result, nil
+}
+func (s *comicService) GetComicNew() ([]dto.ComicResponse, error) {
+	comics, err := s.comicRepository.FindByCreatedAt()
+	if err != nil {
+		s.logger.WithError(err).Error("find by created at to database failed")
 		return nil, err
 	}
 	result := make([]dto.ComicResponse, 0, len(comics))
