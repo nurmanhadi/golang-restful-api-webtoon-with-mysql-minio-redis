@@ -9,9 +9,10 @@ import (
 )
 
 type Route struct {
-	App          *fiber.App
-	UserHandler  handler.UserHandler
-	ComicHandler handler.ComicHandler
+	App            *fiber.App
+	UserHandler    handler.UserHandler
+	ComicHandler   handler.ComicHandler
+	ChapterHandler handler.ChapterHandler
 }
 
 func (r *Route) Setup() {
@@ -78,4 +79,11 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.ComicHandler.UploadCover) // upload cover
+
+	// chapter
+	chapter := comic.Group("/:comicID/chapters")
+	chapter.Post("/",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.ChapterHandler.AddChapter) // add chapter
 }

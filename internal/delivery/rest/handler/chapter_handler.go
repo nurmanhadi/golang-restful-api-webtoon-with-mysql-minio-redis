@@ -1,0 +1,32 @@
+package handler
+
+import (
+	"welltoon/internal/dto"
+	"welltoon/internal/service"
+	"welltoon/pkg/response"
+
+	"github.com/gofiber/fiber/v2"
+)
+
+type ChapterHandler interface {
+	AddChapter(c *fiber.Ctx) error
+}
+type chapterHandler struct {
+	chapterService service.ChapterService
+}
+
+func NewChapterHandler(chapterService service.ChapterService) ChapterHandler {
+	return &chapterHandler{chapterService: chapterService}
+}
+func (h *chapterHandler) AddChapter(c *fiber.Ctx) error {
+	comicID := c.Params("comicID")
+	request := new(dto.ChapterAddRequest)
+	if err := c.BodyParser(request); err != nil {
+		return response.Exception(400, err.Error())
+	}
+	err := h.chapterService.AddChapter(comicID, request)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 201, "OK")
+}

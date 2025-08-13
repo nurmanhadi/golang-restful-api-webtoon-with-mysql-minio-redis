@@ -167,3 +167,11 @@ func (r *comicDB) FindByCreatedAt() ([]entity.Comic, error) {
 	}
 	return comics, nil
 }
+func (r *comicDB) CountByID(comicID int64) (int64, error) {
+	var count int64
+	err := r.db.Model(&entity.Comic{}).Where("id = ?", comicID).Count(&count).Error
+	if err != nil {
+		return 0, nil
+	}
+	return count, nil
+}

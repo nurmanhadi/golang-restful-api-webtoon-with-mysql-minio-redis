@@ -12,7 +12,6 @@
     ```json
     {
         "number": 1,
-        "publish": true, // optional
     }
     ```
 
