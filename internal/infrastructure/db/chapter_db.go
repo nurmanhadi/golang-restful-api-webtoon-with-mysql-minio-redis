@@ -17,3 +17,11 @@ func NewChapterDB(db *gorm.DB) repository.ChapterRepository {
 func (r *chapterDB) Save(chapter *entity.Chapter) error {
 	return r.db.Save(chapter).Error
 }
+func (r *chapterDB) FindByID(chapterID int64) (*entity.Chapter, error) {
+	chapter := new(entity.Chapter)
+	err := r.db.Where("id = ?", chapterID).First(chapter).Error
+	if err != nil {
+		return nil, err
+	}
+	return chapter, nil
+}

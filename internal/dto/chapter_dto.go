@@ -5,7 +5,10 @@ import "time"
 type ChapterAddRequest struct {
 	Number int `json:"number" validate:"required"`
 }
-
+type ChapterUpdateRequest struct {
+	Number  *int  `json:"number" validate:"omitempty"`
+	Publish *bool `json:"publish" validate:"omitempty"`
+}
 type ChapterResponse struct {
 	ID        int64     `json:"id"`
 	ComicID   int64     `json:"comic_id"`

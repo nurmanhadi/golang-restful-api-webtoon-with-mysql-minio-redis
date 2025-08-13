@@ -86,4 +86,8 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.ChapterHandler.AddChapter) // add chapter
+	chapter.Patch("/:chapterID",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.ChapterHandler.UpdateChapter) // update chapter
 }

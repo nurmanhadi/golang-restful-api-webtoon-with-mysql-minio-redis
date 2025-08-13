@@ -10,6 +10,7 @@ import (
 
 type ChapterHandler interface {
 	AddChapter(c *fiber.Ctx) error
+	UpdateChapter(c *fiber.Ctx) error
 }
 type chapterHandler struct {
 	chapterService service.ChapterService
@@ -29,4 +30,17 @@ func (h *chapterHandler) AddChapter(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 201, "OK")
+}
+func (h *chapterHandler) UpdateChapter(c *fiber.Ctx) error {
+	comicID := c.Params("comicID")
+	chapterID := c.Params("chapterID")
+	request := new(dto.ChapterUpdateRequest)
+	if err := c.BodyParser(request); err != nil {
+		return response.Exception(400, err.Error())
+	}
+	err := h.chapterService.UpdateChapter(comicID, chapterID, request)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
 }
