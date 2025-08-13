@@ -82,6 +82,7 @@ func (r *Route) Setup() {
 
 	// chapter
 	chapter := comic.Group("/:comicID/chapters")
+	comic.Get("/:slug/chapters/:number", r.ChapterHandler.GetChapterBySlugAndNumber) // get chapter by slug and number
 	chapter.Post("/",
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),

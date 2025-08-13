@@ -1,6 +1,7 @@
 package service
 
 import (
+	"sort"
 	"strconv"
 	"welltoon/internal/dto"
 	"welltoon/internal/entity"
@@ -16,6 +17,7 @@ type ChapterService interface {
 	AddChapter(comicID string, request *dto.ChapterAddRequest) error
 	UpdateChapter(comicID, chapterID string, request *dto.ChapterUpdateRequest) error
 	DeleteChapter(comicID, chapterID string) error
+	GetChapterBySlugAndNumber(slug string, chapterNumber string) (*dto.ChapterResponse, error)
 }
 type chapterService struct {
 	logger            *logrus.Logger
@@ -166,4 +168,92 @@ func (s *chapterService) DeleteChapter(comicID, chapterID string) error {
 		"chapter_id": newChapterID,
 	}).Info("delete chapter success")
 	return nil
+}
+func (s *chapterService) GetChapterBySlugAndNumber(slug string, chapterNumber string) (*dto.ChapterResponse, error) {
+	newChapterNumber, err := strconv.Atoi(chapterNumber)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"number": chapterNumber,
+		}).Warn("number most be number")
+		return nil, response.Exception(400, "number most be number")
+	}
+	comic, err := s.comicRepository.FindBySlug(slug)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"slug": slug,
+		}).Warn("comic not found")
+		return nil, response.Exception(404, "comic not found")
+	}
+	chapter, err := s.chapterRepository.FindByComicIDAndNumber(comic.ID, newChapterNumber)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"number": newChapterNumber,
+		}).Warn("chapter not found")
+		return nil, response.Exception(404, "chapter not found")
+	}
+	chapters := make([]dto.ChapterResponse, 0, len(comic.Chapters))
+	if len(comic.Chapters) != 0 {
+		for _, ch := range comic.Chapters {
+			if ch.Publish {
+				chapters = append(chapters, dto.ChapterResponse{
+					ID:        ch.ID,
+					ComicID:   ch.ComicID,
+					Number:    ch.Number,
+					Publish:   ch.Publish,
+					CreatedAt: ch.CreatedAt,
+					UpdatedAt: ch.UpdatedAt,
+				})
+			}
+		}
+		if len(chapters) > 0 {
+			sort.Slice(chapters, func(i, j int) bool {
+				return chapters[i].Number < chapters[j].Number // DESC
+			})
+		}
+	}
+	comicResponse := &dto.ComicResponse{
+		ID:            comic.ID,
+		Title:         comic.Title,
+		Slug:          comic.Slug,
+		Synopsis:      comic.Synopsis,
+		Author:        comic.Author,
+		Artist:        comic.Artist,
+		Type:          comic.Type,
+		Status:        comic.Status,
+		CoverFilename: comic.CoverFilename,
+		CoverUrl:      comic.CoverUrl,
+		PostOn:        comic.PostOn,
+		UpdatedOn:     comic.UpdatedOn,
+		CreatedAt:     comic.CreatedAt,
+		UpdatedAt:     comic.UpdatedAt,
+		Chapters:      chapters,
+	}
+	pages := make([]dto.PagesResponse, 0, len(chapter.Pages))
+	if len(chapter.Pages) != 0 {
+		for _, page := range chapter.Pages {
+			pages = append(pages, dto.PagesResponse{
+				ID:            page.ID,
+				ChapterID:     page.ChapterID,
+				ImageFilename: page.ImageFilename,
+				ImageUrl:      page.ImageUrl,
+				CreatedAt:     page.CreatedAt,
+				UpdatedAt:     page.UpdatedAt,
+			})
+		}
+	}
+	result := &dto.ChapterResponse{
+		ID:        chapter.ID,
+		ComicID:   chapter.ComicID,
+		Number:    chapter.Number,
+		Publish:   chapter.Publish,
+		CreatedAt: chapter.CreatedAt,
+		UpdatedAt: chapter.UpdatedAt,
+		Comic:     comicResponse,
+		Pages:     pages,
+	}
+	s.logger.WithField("data", fiber.Map{
+		"slug":   slug,
+		"number": newChapterNumber,
+	}).Info("get chapter by slug and number success")
+	return result, nil
 }

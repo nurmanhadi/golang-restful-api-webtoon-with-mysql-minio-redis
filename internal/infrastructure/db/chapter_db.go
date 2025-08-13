@@ -28,3 +28,14 @@ func (r *chapterDB) FindByID(chapterID int64) (*entity.Chapter, error) {
 func (r *chapterDB) Delete(chapterID int64) error {
 	return r.db.Where("id = ?", chapterID).Delete(&entity.Chapter{}).Error
 }
+func (r *chapterDB) FindByComicIDAndNumber(comicID int64, number int) (*entity.Chapter, error) {
+	chapter := new(entity.Chapter)
+	err := r.db.
+		Where("comic_id = ? AND number = ?", comicID, number).
+		Preload("Pages").
+		First(chapter).Error
+	if err != nil {
+		return nil, err
+	}
+	return chapter, nil
+}
