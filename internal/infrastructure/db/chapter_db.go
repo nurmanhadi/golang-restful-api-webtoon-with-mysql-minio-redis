@@ -25,3 +25,6 @@ func (r *chapterDB) FindByID(chapterID int64) (*entity.Chapter, error) {
 	}
 	return chapter, nil
 }
+func (r *chapterDB) Delete(chapterID int64) error {
+	return r.db.Where("id = ?", chapterID).Delete(&entity.Chapter{}).Error
+}

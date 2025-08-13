@@ -90,4 +90,8 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.ChapterHandler.UpdateChapter) // update chapter
+	chapter.Delete("/:chapterID",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.ChapterHandler.DeleteChapter) // delete chapter
 }

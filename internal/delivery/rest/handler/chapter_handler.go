@@ -11,6 +11,7 @@ import (
 type ChapterHandler interface {
 	AddChapter(c *fiber.Ctx) error
 	UpdateChapter(c *fiber.Ctx) error
+	DeleteChapter(c *fiber.Ctx) error
 }
 type chapterHandler struct {
 	chapterService service.ChapterService
@@ -39,6 +40,15 @@ func (h *chapterHandler) UpdateChapter(c *fiber.Ctx) error {
 		return response.Exception(400, err.Error())
 	}
 	err := h.chapterService.UpdateChapter(comicID, chapterID, request)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
+}
+func (h *chapterHandler) DeleteChapter(c *fiber.Ctx) error {
+	comicID := c.Params("comicID")
+	chapterID := c.Params("chapterID")
+	err := h.chapterService.DeleteChapter(comicID, chapterID)
 	if err != nil {
 		return err
 	}
