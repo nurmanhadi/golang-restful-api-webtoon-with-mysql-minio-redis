@@ -1,6 +1,7 @@
 package db
 
 import (
+	"time"
 	"welltoon/internal/entity"
 	"welltoon/internal/repository"
 
@@ -174,4 +175,7 @@ func (r *comicDB) CountByID(comicID int64) (int64, error) {
 		return 0, nil
 	}
 	return count, nil
+}
+func (r *comicDB) UpdateUpdateOn(comicID int64) error {
+	return r.db.Model(&entity.Comic{}).Where("id", comicID).Update("updated_on", time.Now()).Error
 }

@@ -123,6 +123,11 @@ func (s *chapterService) UpdateChapter(comicID, chapterID string, request *dto.C
 		s.logger.WithError(err).Error("save chapter to database failed")
 		return err
 	}
+	err = s.comicRepository.UpdateUpdateOn(newComicID)
+	if err != nil {
+		s.logger.WithError(err).Error("update updated on to database failed")
+		return err
+	}
 	s.logger.WithField("data", request).Info("update chapter success")
 	return nil
 }

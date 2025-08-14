@@ -13,6 +13,7 @@ type Route struct {
 	UserHandler    handler.UserHandler
 	ComicHandler   handler.ComicHandler
 	ChapterHandler handler.ChapterHandler
+	PageHandler    handler.PageHandler
 }
 
 func (r *Route) Setup() {
@@ -95,4 +96,11 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.ChapterHandler.DeleteChapter) // delete chapter
+
+	// page
+	page := chapter.Group("/:chapterID/pages")
+	page.Post("/",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.PageHandler.AddBulkPage) // add bulk page
 }

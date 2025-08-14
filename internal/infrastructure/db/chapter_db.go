@@ -39,3 +39,11 @@ func (r *chapterDB) FindByComicIDAndNumber(comicID int64, number int) (*entity.C
 	}
 	return chapter, nil
 }
+func (r *chapterDB) CountByID(chapterID int64) (int64, error) {
+	var count int64
+	err := r.db.Model(&entity.Chapter{}).Where("id = ?", chapterID).Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

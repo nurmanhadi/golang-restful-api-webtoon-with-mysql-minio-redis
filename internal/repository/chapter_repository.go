@@ -7,4 +7,5 @@ type ChapterRepository interface {
 	FindByID(chapterID int64) (*entity.Chapter, error)
 	Delete(chapterID int64) error
 	FindByComicIDAndNumber(comicID int64, number int) (*entity.Chapter, error)
+	CountByID(chapterID int64) (int64, error)
 }

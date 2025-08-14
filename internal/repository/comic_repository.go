@@ -19,4 +19,5 @@ type ComicRepository interface {
 	FindByTitle(title string) ([]entity.Comic, error)
 	FindByCreatedAt() ([]entity.Comic, error)
 	CountByID(comicID int64) (int64, error)
+	UpdateUpdateOn(comicID int64) error
 }
