@@ -1,6 +1,6 @@
 ## Pages
 
-### 1. Add Bulk Page `POST api/comics/{comicID}/chapters/{chapterID}/pages`
+### 1. Add Bulk Page `POST api/pages`
 
 - Header
 
@@ -9,15 +9,16 @@
 
 - Body
 
-    | Field | Type | Ext        | Required |
-    |-------|------|------------|----------|
-    |pages  | file | .jpg, .png | ✅       |
+    | Field      | Type | Ext        | Required |
+    |------------|------|------------|----------|
+    | chapter_id | text |            | ✅       |
+    | pages      | file | .jpg, .png | ✅       |
 
 - Response Code
 
     `201` `400` `404`
 
-### 2. Delete Page `DELETE api/comics/{comicID}/chapters/{chapterID}/pages/{pageID}`
+### 2. Delete Page `DELETE api/pages/{pageID}`
 
 - Header
 

@@ -15,8 +15,8 @@ import (
 )
 
 type PageService interface {
-	AddBulkPage(comicID, chapterID string, files []*multipart.FileHeader) error
-	DeletePage(comicID, chapterID, pageID string) error
+	AddBulkPage(chapterID string, files []*multipart.FileHeader) error
+	DeletePage(pageID string) error
 }
 type pageService struct {
 	logger            *logrus.Logger
@@ -45,31 +45,13 @@ func NewPageService(logger *logrus.Logger,
 		s3Repository:      s3Repository,
 	}
 }
-func (s *pageService) AddBulkPage(comicID, chapterID string, files []*multipart.FileHeader) error {
-	newComicID, err := strconv.ParseInt(comicID, 10, 64)
-	if err != nil {
-		s.logger.WithField("data", fiber.Map{
-			"comic_id": comicID,
-		}).Warn("comicID most be number")
-		return response.Exception(400, "comicID most be number")
-	}
+func (s *pageService) AddBulkPage(chapterID string, files []*multipart.FileHeader) error {
 	newChapterID, err := strconv.ParseInt(chapterID, 10, 64)
 	if err != nil {
 		s.logger.WithField("data", fiber.Map{
 			"chapter_id": chapterID,
 		}).Warn("chapterID most be number")
 		return response.Exception(400, "chapterID most be number")
-	}
-	countComic, err := s.comicRepository.CountByID(newComicID)
-	if err != nil {
-		s.logger.WithError(err).Error("count by id to database failed")
-		return err
-	}
-	if countComic < 1 {
-		s.logger.WithField("data", fiber.Map{
-			"comic_id": newComicID,
-		}).Warn("comic not found")
-		return response.Exception(404, "comic not found")
 	}
 	countChapter, err := s.chapterRepository.CountByID(newChapterID)
 	if err != nil {
@@ -132,49 +114,13 @@ func (s *pageService) AddBulkPage(comicID, chapterID string, files []*multipart.
 	}).Info("upload bulk page success")
 	return nil
 }
-func (s *pageService) DeletePage(comicID, chapterID, pageID string) error {
-	newComicID, err := strconv.ParseInt(comicID, 10, 64)
-	if err != nil {
-		s.logger.WithField("data", fiber.Map{
-			"comic_id": comicID,
-		}).Warn("comicID most be number")
-		return response.Exception(400, "comicID most be number")
-	}
-	newChapterID, err := strconv.ParseInt(chapterID, 10, 64)
-	if err != nil {
-		s.logger.WithField("data", fiber.Map{
-			"chapter_id": chapterID,
-		}).Warn("chapterID most be number")
-		return response.Exception(400, "chapterID most be number")
-	}
+func (s *pageService) DeletePage(pageID string) error {
 	newPageID, err := strconv.ParseInt(pageID, 10, 64)
 	if err != nil {
 		s.logger.WithField("data", fiber.Map{
 			"page_id": pageID,
 		}).Warn("pageID most be number")
 		return response.Exception(400, "pageID most be number")
-	}
-	countComic, err := s.comicRepository.CountByID(newComicID)
-	if err != nil {
-		s.logger.WithError(err).Error("count by id to database failed")
-		return err
-	}
-	if countComic < 1 {
-		s.logger.WithField("data", fiber.Map{
-			"comic_id": newComicID,
-		}).Warn("comic not found")
-		return response.Exception(404, "comic not found")
-	}
-	countChapter, err := s.chapterRepository.CountByID(newChapterID)
-	if err != nil {
-		s.logger.WithError(err).Error("count by id to database failed")
-		return err
-	}
-	if countChapter < 1 {
-		s.logger.WithField("data", fiber.Map{
-			"chapter_id": newChapterID,
-		}).Warn("chapter not found")
-		return response.Exception(404, "chapter not found")
 	}
 	page, err := s.pageRepository.FindByID(newPageID)
 	if err != nil {

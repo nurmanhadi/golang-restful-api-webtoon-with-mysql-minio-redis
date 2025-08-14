@@ -19,27 +19,27 @@ func NewPageHandler(pageService service.PageService) PageHandler {
 	return &pageHandler{pageService: pageService}
 }
 func (h *pageHandler) AddBulkPage(c *fiber.Ctx) error {
-	comicID := c.Params("comicID")
-	chapterID := c.Params("chapterID")
 	form, err := c.MultipartForm()
 	if err != nil {
 		return response.Exception(400, err.Error())
+	}
+	chapterID := c.FormValue("chapter_id", "none")
+	if chapterID == "none" {
+		return response.Exception(400, "chapter_id required")
 	}
 	files := form.File["pages"]
 	if len(files) > 20 {
 		return response.Exception(400, "pages max 20")
 	}
-	err = h.pageService.AddBulkPage(comicID, chapterID, files)
+	err = h.pageService.AddBulkPage(chapterID, files)
 	if err != nil {
 		return err
 	}
 	return response.Success(c, 201, "OK")
 }
 func (h *pageHandler) DeletePage(c *fiber.Ctx) error {
-	comicID := c.Params("comicID")
-	chapterID := c.Params("chapterID")
 	pageID := c.Params("pageID")
-	err := h.pageService.DeletePage(comicID, chapterID, pageID)
+	err := h.pageService.DeletePage(pageID)
 	if err != nil {
 		return err
 	}
