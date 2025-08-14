@@ -82,7 +82,7 @@ func (r *Route) Setup() {
 		r.ComicHandler.UploadCover) // upload cover
 
 	// chapter
-	chapter := comic.Group("/:comicID/chapters")
+	chapter := api.Group("/chapters")
 	comic.Get("/:slug/chapters/:number", r.ChapterHandler.GetChapterBySlugAndNumber) // get chapter by slug and number
 	chapter.Post("/",
 		middleware.JwtSession,
@@ -98,9 +98,13 @@ func (r *Route) Setup() {
 		r.ChapterHandler.DeleteChapter) // delete chapter
 
 	// page
-	page := chapter.Group("/:chapterID/pages")
+	page := api.Group("/pages")
 	page.Post("/",
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.PageHandler.AddBulkPage) // add bulk page
+	page.Delete("/:pageID",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.PageHandler.DeletePage) // delete page
 }

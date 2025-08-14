@@ -9,6 +9,7 @@ import (
 
 type PageHandler interface {
 	AddBulkPage(c *fiber.Ctx) error
+	DeletePage(c *fiber.Ctx) error
 }
 type pageHandler struct {
 	pageService service.PageService
@@ -33,4 +34,14 @@ func (h *pageHandler) AddBulkPage(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 201, "OK")
+}
+func (h *pageHandler) DeletePage(c *fiber.Ctx) error {
+	comicID := c.Params("comicID")
+	chapterID := c.Params("chapterID")
+	pageID := c.Params("pageID")
+	err := h.pageService.DeletePage(comicID, chapterID, pageID)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
 }

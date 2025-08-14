@@ -16,6 +16,7 @@ import (
 
 type PageService interface {
 	AddBulkPage(comicID, chapterID string, files []*multipart.FileHeader) error
+	DeletePage(comicID, chapterID, pageID string) error
 }
 type pageService struct {
 	logger            *logrus.Logger
@@ -129,5 +130,71 @@ func (s *pageService) AddBulkPage(comicID, chapterID string, files []*multipart.
 	s.logger.WithField("data", fiber.Map{
 		"total_file": len(files),
 	}).Info("upload bulk page success")
+	return nil
+}
+func (s *pageService) DeletePage(comicID, chapterID, pageID string) error {
+	newComicID, err := strconv.ParseInt(comicID, 10, 64)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"comic_id": comicID,
+		}).Warn("comicID most be number")
+		return response.Exception(400, "comicID most be number")
+	}
+	newChapterID, err := strconv.ParseInt(chapterID, 10, 64)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"chapter_id": chapterID,
+		}).Warn("chapterID most be number")
+		return response.Exception(400, "chapterID most be number")
+	}
+	newPageID, err := strconv.ParseInt(pageID, 10, 64)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"page_id": pageID,
+		}).Warn("pageID most be number")
+		return response.Exception(400, "pageID most be number")
+	}
+	countComic, err := s.comicRepository.CountByID(newComicID)
+	if err != nil {
+		s.logger.WithError(err).Error("count by id to database failed")
+		return err
+	}
+	if countComic < 1 {
+		s.logger.WithField("data", fiber.Map{
+			"comic_id": newComicID,
+		}).Warn("comic not found")
+		return response.Exception(404, "comic not found")
+	}
+	countChapter, err := s.chapterRepository.CountByID(newChapterID)
+	if err != nil {
+		s.logger.WithError(err).Error("count by id to database failed")
+		return err
+	}
+	if countChapter < 1 {
+		s.logger.WithField("data", fiber.Map{
+			"chapter_id": newChapterID,
+		}).Warn("chapter not found")
+		return response.Exception(404, "chapter not found")
+	}
+	page, err := s.pageRepository.FindByID(newPageID)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"page_id": newPageID,
+		}).Warn("page not found")
+		return response.Exception(404, "page not found")
+	}
+	err = s.s3Repository.RemoveObject(page.ImageFilename)
+	if err != nil {
+		s.logger.WithError(err).Error("s3 remove object failed")
+		return err
+	}
+	err = s.pageRepository.Delete(newPageID)
+	if err != nil {
+		s.logger.WithError(err).Error("delete page to database failed")
+		return err
+	}
+	s.logger.WithField("data", fiber.Map{
+		"page_id": newPageID,
+	}).Info("delete page success")
 	return nil
 }
