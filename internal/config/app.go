@@ -44,7 +44,7 @@ func App(conf *Configuration) {
 	userServ := service.NewUserService(conf.Validation, conf.Logger, userDB, s3)
 	comicServ := service.NewComicService(conf.Logger, conf.Validation, comicDB, s3)
 	chapterServ := service.NewChapterService(conf.Logger, conf.Validation, chapterDB, comicDB)
-	pageServ := service.NewPageService(conf.Logger, conf.Validation, pageDB, comicDB, chapterDB, cache, s3)
+	pageServ := service.NewPageService(conf.Logger, conf.Validation, pageDB, chapterDB, cache, s3)
 
 	// handler
 	userHand := handler.NewUserHandler(userServ)

@@ -22,7 +22,6 @@ type pageService struct {
 	logger            *logrus.Logger
 	validation        *validator.Validate
 	pageRepository    repository.PageRepository
-	comicRepository   repository.ComicRepository
 	chapterRepository repository.ChapterRepository
 	cacheRepository   repository.CacheRepository
 	s3Repository      repository.S3Repository
@@ -31,7 +30,6 @@ type pageService struct {
 func NewPageService(logger *logrus.Logger,
 	validation *validator.Validate,
 	pageRepository repository.PageRepository,
-	comicRepository repository.ComicRepository,
 	chapterRepository repository.ChapterRepository,
 	cacheRepository repository.CacheRepository,
 	s3Repository repository.S3Repository) PageService {
@@ -39,7 +37,6 @@ func NewPageService(logger *logrus.Logger,
 		logger:            logger,
 		validation:        validation,
 		pageRepository:    pageRepository,
-		comicRepository:   comicRepository,
 		chapterRepository: chapterRepository,
 		cacheRepository:   cacheRepository,
 		s3Repository:      s3Repository,
