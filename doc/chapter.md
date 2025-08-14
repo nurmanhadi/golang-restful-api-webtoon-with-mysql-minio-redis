@@ -1,6 +1,6 @@
 ## CHAPTER
 
-### 1. Add Chapter `POST api/comics/{comicID}/chapters`
+### 1. Add Chapter `POST api/chapters`
 
 - Header
 
@@ -11,6 +11,7 @@
 
     ```json
     {
+        "comic_id": 2,
         "number": 1,
     }
     ```
@@ -19,7 +20,7 @@
 
     `201` `400` `404`
 
-### 2. Update Chapter `PATCH api/comics/{comicID}/chapters/{chapterID}`
+### 2. Update Chapter `PATCH api/chapters/{chapterID}`
 
 - Header
 
@@ -30,6 +31,7 @@
 
     ```json
     {
+        "comic_id": 2, // required
         "number": 1, // optional
         "publish": true, // optional
     }
@@ -39,7 +41,7 @@
 
     `200` `400` `404`
 
-### 3. Delete Chapter `DELETE api/comics/{comicID}/chapters/{chapterID}`
+### 3. Delete Chapter `DELETE api/chapters/{chapterID}`
 
 - Header
 

@@ -22,34 +22,31 @@ func NewChapterHandler(chapterService service.ChapterService) ChapterHandler {
 	return &chapterHandler{chapterService: chapterService}
 }
 func (h *chapterHandler) AddChapter(c *fiber.Ctx) error {
-	comicID := c.Params("comicID")
 	request := new(dto.ChapterAddRequest)
 	if err := c.BodyParser(request); err != nil {
 		return response.Exception(400, err.Error())
 	}
-	err := h.chapterService.AddChapter(comicID, request)
+	err := h.chapterService.AddChapter(request)
 	if err != nil {
 		return err
 	}
 	return response.Success(c, 201, "OK")
 }
 func (h *chapterHandler) UpdateChapter(c *fiber.Ctx) error {
-	comicID := c.Params("comicID")
 	chapterID := c.Params("chapterID")
 	request := new(dto.ChapterUpdateRequest)
 	if err := c.BodyParser(request); err != nil {
 		return response.Exception(400, err.Error())
 	}
-	err := h.chapterService.UpdateChapter(comicID, chapterID, request)
+	err := h.chapterService.UpdateChapter(chapterID, request)
 	if err != nil {
 		return err
 	}
 	return response.Success(c, 200, "OK")
 }
 func (h *chapterHandler) DeleteChapter(c *fiber.Ctx) error {
-	comicID := c.Params("comicID")
 	chapterID := c.Params("chapterID")
-	err := h.chapterService.DeleteChapter(comicID, chapterID)
+	err := h.chapterService.DeleteChapter(chapterID)
 	if err != nil {
 		return err
 	}

@@ -3,9 +3,11 @@ package dto
 import "time"
 
 type ChapterAddRequest struct {
-	Number int `json:"number" validate:"required"`
+	ComicID int64 `json:"comic_id" validate:"required"`
+	Number  int   `json:"number" validate:"required"`
 }
 type ChapterUpdateRequest struct {
+	ComicID int64 `json:"comic_id" validate:"required"`
 	Number  *int  `json:"number" validate:"omitempty"`
 	Publish *bool `json:"publish" validate:"omitempty"`
 }
