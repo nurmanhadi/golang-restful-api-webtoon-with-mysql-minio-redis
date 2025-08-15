@@ -111,6 +111,7 @@ func (r *Route) Setup() {
 
 	// genre
 	genre := api.Group("/genres")
+	genre.Get("/", r.GenreHandler.GetAllGenre) // get all genre
 	genre.Post("/",
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
@@ -119,4 +120,8 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.GenreHandler.UpdateGenre) // update genre
+	genre.Delete("/:genreID",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.GenreHandler.DeleteGenre) // delete genre
 }

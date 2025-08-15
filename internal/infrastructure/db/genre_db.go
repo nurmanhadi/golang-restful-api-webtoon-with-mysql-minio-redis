@@ -31,3 +31,11 @@ func (r *genreDB) UpdateName(genreID int64, name string) error {
 func (r *genreDB) Delete(genreID int64) error {
 	return r.db.Where("id = ?", genreID).Delete(&entity.Genre{}).Error
 }
+func (r *genreDB) FindAll() ([]entity.Genre, error) {
+	var genres []entity.Genre
+	err := r.db.Find(&genres).Error
+	if err != nil {
+		return nil, err
+	}
+	return genres, nil
+}

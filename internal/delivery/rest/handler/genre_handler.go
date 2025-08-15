@@ -11,6 +11,8 @@ import (
 type GenreHandler interface {
 	AddGenre(c *fiber.Ctx) error
 	UpdateGenre(c *fiber.Ctx) error
+	DeleteGenre(c *fiber.Ctx) error
+	GetAllGenre(c *fiber.Ctx) error
 }
 type genreHandler struct {
 	genreService service.GenreService
@@ -41,4 +43,19 @@ func (h *genreHandler) UpdateGenre(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 200, "OK")
+}
+func (h *genreHandler) DeleteGenre(c *fiber.Ctx) error {
+	genreID := c.Params("genreID")
+	err := h.genreService.DeleteGenre(genreID)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, "OK")
+}
+func (h *genreHandler) GetAllGenre(c *fiber.Ctx) error {
+	result, err := h.genreService.GetAllGenre()
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, result)
 }
