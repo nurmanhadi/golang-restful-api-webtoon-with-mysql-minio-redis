@@ -39,18 +39,21 @@ func App(conf *Configuration) {
 	comicDB := db.NewComicDB(conf.DB)
 	chapterDB := db.NewChapterDB(conf.DB)
 	pageDB := db.NewPageDB(conf.DB)
+	genreDB := db.NewGenreDB(conf.DB)
 
 	// service
 	userServ := service.NewUserService(conf.Validation, conf.Logger, userDB, s3)
 	comicServ := service.NewComicService(conf.Logger, conf.Validation, comicDB, s3)
 	chapterServ := service.NewChapterService(conf.Logger, conf.Validation, chapterDB, comicDB)
 	pageServ := service.NewPageService(conf.Logger, conf.Validation, pageDB, chapterDB, cache, s3)
+	genreServ := service.NewGenreService(conf.Logger, conf.Validation, genreDB)
 
 	// handler
 	userHand := handler.NewUserHandler(userServ)
 	comicHand := handler.NewComicHandler(comicServ)
 	chapterHand := handler.NewChapterHandler(chapterServ)
 	pageHand := handler.NewPageHandler(pageServ)
+	genreHand := handler.NewGenreHandler(genreServ)
 
 	// routes
 	route := &routes.Route{
@@ -59,6 +62,7 @@ func App(conf *Configuration) {
 		ComicHandler:   comicHand,
 		ChapterHandler: chapterHand,
 		PageHandler:    pageHand,
+		GenreHandler:   genreHand,
 	}
 	route.Setup()
 }

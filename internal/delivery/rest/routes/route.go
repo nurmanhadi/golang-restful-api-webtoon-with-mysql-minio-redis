@@ -14,6 +14,7 @@ type Route struct {
 	ComicHandler   handler.ComicHandler
 	ChapterHandler handler.ChapterHandler
 	PageHandler    handler.PageHandler
+	GenreHandler   handler.GenreHandler
 }
 
 func (r *Route) Setup() {
@@ -107,4 +108,11 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.PageHandler.DeletePage) // delete page
+
+	// genre
+	genre := api.Group("/genres")
+	genre.Post("/",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.GenreHandler.AddGenre) // add genre
 }
