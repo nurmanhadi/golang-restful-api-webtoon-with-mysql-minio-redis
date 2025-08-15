@@ -115,4 +115,8 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.GenreHandler.AddGenre) // add genre
+	genre.Patch("/:genreID",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.GenreHandler.UpdateGenre) // update genre
 }

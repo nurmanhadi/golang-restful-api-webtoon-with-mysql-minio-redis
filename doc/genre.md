@@ -19,7 +19,7 @@
 
     `201` `400` `404`
 
-### 2. Update Genre `POST api/genres/{genreID}`
+### 2. Update Genre `PATCH api/genres/{genreID}`
 
 - Header
 
