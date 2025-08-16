@@ -13,6 +13,7 @@ type GenreHandler interface {
 	UpdateGenre(c *fiber.Ctx) error
 	DeleteGenre(c *fiber.Ctx) error
 	GetAllGenre(c *fiber.Ctx) error
+	GetComicByGenreName(c *fiber.Ctx) error
 }
 type genreHandler struct {
 	genreService service.GenreService
@@ -54,6 +55,16 @@ func (h *genreHandler) DeleteGenre(c *fiber.Ctx) error {
 }
 func (h *genreHandler) GetAllGenre(c *fiber.Ctx) error {
 	result, err := h.genreService.GetAllGenre()
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 200, result)
+}
+func (h *genreHandler) GetComicByGenreName(c *fiber.Ctx) error {
+	name := c.Params("name")
+	page := c.Query("page", "1")
+	size := c.Query("size", "20")
+	result, err := h.genreService.GetComicByGenreName(name, page, size)
 	if err != nil {
 		return err
 	}

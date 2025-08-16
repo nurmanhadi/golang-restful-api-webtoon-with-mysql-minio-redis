@@ -124,4 +124,5 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.GenreHandler.DeleteGenre) // delete genre
+	genre.Get("/:name", r.GenreHandler.GetComicByGenreName) // get comic by genre name
 }

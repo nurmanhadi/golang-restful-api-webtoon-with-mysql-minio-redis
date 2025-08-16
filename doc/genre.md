@@ -54,7 +54,7 @@
 
     `200` `404`
 
-### 5. Get All Comic by genre Name `GET api/genres/{name}?page={page}&size={size}`
+### 5. Get Comic by genre Name `GET api/genres/{name}?page={page}&size={size}`
 
 - Response Code
 

@@ -40,13 +40,14 @@ func App(conf *Configuration) {
 	chapterDB := db.NewChapterDB(conf.DB)
 	pageDB := db.NewPageDB(conf.DB)
 	genreDB := db.NewGenreDB(conf.DB)
+	comicGenreDB := db.NewComicGenreDB(conf.DB)
 
 	// service
 	userServ := service.NewUserService(conf.Validation, conf.Logger, userDB, s3)
 	comicServ := service.NewComicService(conf.Logger, conf.Validation, comicDB, s3)
 	chapterServ := service.NewChapterService(conf.Logger, conf.Validation, chapterDB, comicDB)
 	pageServ := service.NewPageService(conf.Logger, conf.Validation, pageDB, chapterDB, cache, s3)
-	genreServ := service.NewGenreService(conf.Logger, conf.Validation, genreDB)
+	genreServ := service.NewGenreService(conf.Logger, conf.Validation, genreDB, comicGenreDB)
 
 	// handler
 	userHand := handler.NewUserHandler(userServ)

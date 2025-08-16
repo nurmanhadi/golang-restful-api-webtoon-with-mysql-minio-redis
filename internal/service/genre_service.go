@@ -1,6 +1,7 @@
 package service
 
 import (
+	"math"
 	"strconv"
 	"welltoon/internal/dto"
 	"welltoon/internal/entity"
@@ -17,20 +18,24 @@ type GenreService interface {
 	UpdateGenre(genreID string, request *dto.GenreRequest) error
 	DeleteGenre(genreID string) error
 	GetAllGenre() ([]dto.GenreResponse, error)
+	GetComicByGenreName(name, page, size string) (*dto.Pagination[[]dto.ComicResponse], error)
 }
 type genreService struct {
-	logger          *logrus.Logger
-	validation      *validator.Validate
-	genreRepository repository.GenreRepository
+	logger               *logrus.Logger
+	validation           *validator.Validate
+	genreRepository      repository.GenreRepository
+	comicGenreRepository repository.ComicGenreRepository
 }
 
 func NewGenreService(logger *logrus.Logger,
 	validation *validator.Validate,
-	genreRepository repository.GenreRepository) GenreService {
+	genreRepository repository.GenreRepository,
+	comicGenreRepository repository.ComicGenreRepository) GenreService {
 	return &genreService{
-		logger:          logger,
-		validation:      validation,
-		genreRepository: genreRepository,
+		logger:               logger,
+		validation:           validation,
+		genreRepository:      genreRepository,
+		comicGenreRepository: comicGenreRepository,
 	}
 }
 func (s *genreService) AddGenre(request *dto.GenreRequest) error {
@@ -126,5 +131,71 @@ func (s *genreService) GetAllGenre() ([]dto.GenreResponse, error) {
 	s.logger.WithField("data", fiber.Map{
 		"total_genre": len(result),
 	}).Info("get all genre success")
+	return result, nil
+}
+func (s *genreService) GetComicByGenreName(name, page, size string) (*dto.Pagination[[]dto.ComicResponse], error) {
+	newPage, err := strconv.Atoi(page)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"page": page,
+		}).Warn("page most be number")
+		return nil, response.Exception(400, "page most be number")
+	}
+	newSize, err := strconv.Atoi(size)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"size": size,
+		}).Warn("size most be number")
+		return nil, response.Exception(400, "size most be number")
+	}
+	genre, err := s.genreRepository.FindByName(name)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"name": name,
+		}).Warn("genre not found")
+		return nil, response.Exception(404, "genre not found")
+	}
+	comicGenres, err := s.comicGenreRepository.FindAllByGenreID(genre.ID, newPage, newSize)
+	if err != nil {
+		s.logger.WithError(err).Error("find all by genre id to database failed")
+		return nil, err
+	}
+	comics := make([]dto.ComicResponse, 0, len(comicGenres))
+	var totalElement int
+	var totalPage int
+	if len(comicGenres) != 0 {
+		for _, comicGenre := range comicGenres {
+			comics = append(comics, dto.ComicResponse{
+				ID:            comicGenre.Comic.ID,
+				Title:         comicGenre.Comic.Title,
+				Slug:          comicGenre.Comic.Slug,
+				Synopsis:      comicGenre.Comic.Synopsis,
+				Author:        comicGenre.Comic.Author,
+				Artist:        comicGenre.Comic.Artist,
+				Type:          comicGenre.Comic.Type,
+				Status:        comicGenre.Comic.Status,
+				CoverFilename: comicGenre.Comic.CoverFilename,
+				CoverUrl:      comicGenre.Comic.CoverUrl,
+				PostOn:        comicGenre.Comic.PostOn,
+				UpdatedOn:     comicGenre.Comic.UpdatedOn,
+				CreatedAt:     comicGenre.Comic.CreatedAt,
+				UpdatedAt:     comicGenre.Comic.UpdatedAt,
+			})
+		}
+		count, err := s.comicGenreRepository.CountByGenreID(genre.ID)
+		if err != nil {
+			s.logger.WithError(err).Error("count by genre id to database failed")
+			return nil, err
+		}
+		totalElement = int(count)
+		totalPage = int(math.Ceil(float64(count) / float64(newSize)))
+	}
+	result := &dto.Pagination[[]dto.ComicResponse]{
+		Contents:     comics,
+		Page:         newPage,
+		Size:         newSize,
+		TotalPage:    totalPage,
+		TotalElement: totalElement,
+	}
 	return result, nil
 }

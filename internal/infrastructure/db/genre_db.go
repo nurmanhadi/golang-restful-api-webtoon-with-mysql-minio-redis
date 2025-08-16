@@ -39,3 +39,11 @@ func (r *genreDB) FindAll() ([]entity.Genre, error) {
 	}
 	return genres, nil
 }
+func (r *genreDB) FindByName(name string) (*entity.Genre, error) {
+	genre := new(entity.Genre)
+	err := r.db.Find(genre).Error
+	if err != nil {
+		return nil, err
+	}
+	return genre, nil
+}
