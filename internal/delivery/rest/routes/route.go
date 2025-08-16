@@ -81,6 +81,10 @@ func (r *Route) Setup() {
 		middleware.JwtSession,
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.ComicHandler.UploadCover) // upload cover
+	comic.Post("/:comicID/genre",
+		middleware.JwtSession,
+		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
+		r.ComicHandler.ComicAddGenre) // comic add genre
 
 	// chapter
 	chapter := api.Group("/chapters")

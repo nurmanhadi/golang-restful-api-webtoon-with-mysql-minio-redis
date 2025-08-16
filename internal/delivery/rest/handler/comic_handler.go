@@ -20,6 +20,7 @@ type ComicHandler interface {
 	GetComicByTypeAndStatus(c *fiber.Ctx) error
 	GetComicRelated(c *fiber.Ctx) error
 	GetComicNew(c *fiber.Ctx) error
+	ComicAddGenre(c *fiber.Ctx) error
 }
 type comicHandler struct {
 	comicService service.ComicService
@@ -134,4 +135,16 @@ func (h *comicHandler) GetComicNew(c *fiber.Ctx) error {
 		return err
 	}
 	return response.Success(c, 200, result)
+}
+func (h *comicHandler) ComicAddGenre(c *fiber.Ctx) error {
+	comicID := c.Params("comicID")
+	request := new(dto.ComicAddGenreRequest)
+	if err := c.BodyParser(request); err != nil {
+		return response.Exception(400, err.Error())
+	}
+	err := h.comicService.ComicAddGenre(comicID, request)
+	if err != nil {
+		return err
+	}
+	return response.Success(c, 201, "OK")
 }

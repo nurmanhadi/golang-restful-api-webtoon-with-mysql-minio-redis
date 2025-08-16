@@ -30,24 +30,31 @@ type ComicService interface {
 	GetComicByTypeAndStatus(request *dto.EnumFilter, page, size string) (*dto.Pagination[[]dto.ComicResponse], error)
 	GetComicRelated(slug string) ([]dto.ComicResponse, error)
 	GetComicNew() ([]dto.ComicResponse, error)
+	ComicAddGenre(comicID string, request *dto.ComicAddGenreRequest) error
 }
 
 type comicService struct {
-	logger          *logrus.Logger
-	validation      *validator.Validate
-	comicRepository repository.ComicRepository
-	s3Repository    repository.S3Repository
+	logger               *logrus.Logger
+	validation           *validator.Validate
+	comicRepository      repository.ComicRepository
+	s3Repository         repository.S3Repository
+	genreRepository      repository.GenreRepository
+	comicGenreRepository repository.ComicGenreRepository
 }
 
 func NewComicService(logger *logrus.Logger,
 	validation *validator.Validate,
 	comicRepository repository.ComicRepository,
-	s3Repository repository.S3Repository) ComicService {
+	s3Repository repository.S3Repository,
+	genreRepository repository.GenreRepository,
+	comicGenreRepository repository.ComicGenreRepository) ComicService {
 	return &comicService{
-		logger:          logger,
-		validation:      validation,
-		comicRepository: comicRepository,
-		s3Repository:    s3Repository,
+		logger:               logger,
+		validation:           validation,
+		comicRepository:      comicRepository,
+		s3Repository:         s3Repository,
+		genreRepository:      genreRepository,
+		comicGenreRepository: comicGenreRepository,
 	}
 }
 
@@ -614,4 +621,50 @@ func (s *comicService) GetComicNew() ([]dto.ComicResponse, error) {
 		"total_element": len(comics),
 	}).Info("get comic related success")
 	return result, nil
+}
+func (s *comicService) ComicAddGenre(comicID string, request *dto.ComicAddGenreRequest) error {
+	if err := s.validation.Struct(request); err != nil {
+		s.logger.WithField("data", request).Warn("validation failed")
+		return err
+	}
+	newComicID, err := strconv.ParseInt(comicID, 10, 64)
+	if err != nil {
+		s.logger.WithField("data", fiber.Map{
+			"comic_id": comicID,
+		}).Warn("comicID most be number")
+		return response.Exception(400, "comicID most be number")
+	}
+	countComic, err := s.comicRepository.CountByID(newComicID)
+	if err != nil {
+		s.logger.WithError(err).Error("count by id to database failed")
+		return err
+	}
+	if countComic < 1 {
+		s.logger.WithField("data", fiber.Map{
+			"comic_id": newComicID,
+		}).Warn("comic not found")
+		return response.Exception(404, "comic not found")
+	}
+	countGenre, err := s.genreRepository.CountByID(request.GenreID)
+	if err != nil {
+		s.logger.WithError(err).Error("count by id to database failed")
+		return err
+	}
+	if countGenre < 1 {
+		s.logger.WithField("data", fiber.Map{
+			"genre_id": request.GenreID,
+		}).Warn("genre not found")
+		return response.Exception(404, "genre not found")
+	}
+	comicGenre := &entity.ComicGenre{
+		ComicID: newComicID,
+		GenreID: request.GenreID,
+	}
+	err = s.comicGenreRepository.Save(comicGenre)
+	if err != nil {
+		s.logger.WithError(err).Error("save comic genre to database failed")
+		return err
+	}
+	s.logger.WithField("data", comicGenre).Info("add comic genre success")
+	return nil
 }

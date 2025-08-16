@@ -43,3 +43,6 @@ type ComicResponse struct {
 type ComicTotalResponse struct {
 	TotalComic int `json:"total_comic"`
 }
+type ComicAddGenreRequest struct {
+	GenreID int64 `json:"genre_id" validate:"required"`
+}

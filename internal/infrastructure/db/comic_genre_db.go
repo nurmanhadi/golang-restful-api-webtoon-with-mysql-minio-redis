@@ -36,3 +36,6 @@ func (r *comicGenreDB) CountByGenreID(genreID int64) (int64, error) {
 	}
 	return count, nil
 }
+func (r *comicGenreDB) Save(comicGenre *entity.ComicGenre) error {
+	return r.db.Save(comicGenre).Error
+}

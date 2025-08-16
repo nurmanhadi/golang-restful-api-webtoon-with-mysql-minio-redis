@@ -134,3 +134,22 @@
 - Response Code
 
     `200` `404`
+
+### 12. Comic Add Genre `POST api/comics/:comicID/genre`
+
+- Header
+
+    `Authorization: Bearer token`
+    `Content-Type: application/json`
+
+- Body
+
+    ```json
+    {
+        "genre_id": 1,
+    }
+    ```
+
+- Response Code
+
+    `201` `400` `404`

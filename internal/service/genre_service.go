@@ -197,5 +197,8 @@ func (s *genreService) GetComicByGenreName(name, page, size string) (*dto.Pagina
 		TotalPage:    totalPage,
 		TotalElement: totalElement,
 	}
+	s.logger.WithField("data", fiber.Map{
+		"total_comic": len(comics),
+	}).Info("get comic by genre name success")
 	return result, nil
 }
