@@ -232,6 +232,12 @@ func (s *comicService) GetComicBySlug(slug string) (*dto.ComicResponse, error) {
 			})
 		}
 	}
+	var viewAllTime int
+	if len(comic.Views) != 0 {
+		for _, view := range comic.Views {
+			viewAllTime = view.AllTime
+		}
+	}
 	result := &dto.ComicResponse{
 		ID:            comic.ID,
 		Title:         comic.Title,
@@ -250,7 +256,7 @@ func (s *comicService) GetComicBySlug(slug string) (*dto.ComicResponse, error) {
 		Chapters:      chapters,
 		Genres:        genres,
 		View: &dto.ViewResponse{
-			AllTime: len(comic.Views),
+			AllTime: viewAllTime,
 		},
 	}
 	s.logger.WithField("data", fiber.Map{

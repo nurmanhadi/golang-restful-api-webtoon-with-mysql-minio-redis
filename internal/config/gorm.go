@@ -47,7 +47,7 @@ func NewGorm() *gorm.DB {
 }
 
 func AutoMigrate(db *gorm.DB) {
-	db.AutoMigrate(
+	err := db.AutoMigrate(
 		&entity.User{},
 		&entity.Comic{},
 		&entity.Chapter{},
@@ -56,4 +56,7 @@ func AutoMigrate(db *gorm.DB) {
 		&entity.ComicGenre{},
 		&entity.View{},
 	)
+	if err != nil {
+		log.Fatalf("auto migrate failed: %s", err)
+	}
 }
