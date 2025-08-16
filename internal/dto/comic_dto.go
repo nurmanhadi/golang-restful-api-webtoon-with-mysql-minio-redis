@@ -38,6 +38,7 @@ type ComicResponse struct {
 	UpdatedAt     time.Time         `json:"updated_at"`
 	Chapters      []ChapterResponse `json:"chapters"`
 	Genres        []GenreResponse   `json:"genres"`
+	View          *ViewResponse     `json:"view"`
 }
 type ComicTotalResponse struct {
 	TotalComic int `json:"total_comic"`

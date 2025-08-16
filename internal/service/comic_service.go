@@ -189,6 +189,42 @@ func (s *comicService) GetComicBySlug(slug string) (*dto.ComicResponse, error) {
 		}).Warn("comic not found")
 		return nil, response.Exception(404, "comic not found")
 	}
+	chapters := make([]dto.ChapterResponse, 0, len(comic.Chapters))
+	if len(comic.Chapters) != 0 {
+		for _, chapter := range comic.Chapters {
+			if chapter.Publish {
+				chapters = append(chapters, dto.ChapterResponse{
+					ID:        chapter.ID,
+					ComicID:   chapter.ComicID,
+					Number:    chapter.Number,
+					Publish:   chapter.Publish,
+					CreatedAt: chapter.CreatedAt,
+					UpdatedAt: chapter.UpdatedAt,
+				})
+			}
+			if len(chapters) != 0 {
+				sort.Slice(chapters, func(i, j int) bool {
+					return chapters[i].Number < chapters[j].Number // DESC
+				})
+			}
+		}
+	}
+	genres := make([]dto.GenreResponse, 0, len(comic.ComicGenres))
+	if len(comic.ComicGenres) != 0 {
+		for _, comicGenre := range comic.ComicGenres {
+			genres = append(genres, dto.GenreResponse{
+				ID:        comicGenre.Genre.ID,
+				Name:      comicGenre.Genre.Name,
+				CreatedAt: comicGenre.Genre.CreatedAt,
+				UpdatedAt: comicGenre.Genre.UpdatedAt,
+			})
+		}
+		if len(genres) != 0 {
+			sort.Slice(genres, func(i, j int) bool {
+				return genres[i].Name > genres[j].Name // ASC
+			})
+		}
+	}
 	result := &dto.ComicResponse{
 		ID:            comic.ID,
 		Title:         comic.Title,
@@ -204,6 +240,11 @@ func (s *comicService) GetComicBySlug(slug string) (*dto.ComicResponse, error) {
 		UpdatedOn:     comic.UpdatedOn,
 		CreatedAt:     comic.CreatedAt,
 		UpdatedAt:     comic.UpdatedAt,
+		Chapters:      chapters,
+		Genres:        genres,
+		View: &dto.ViewResponse{
+			AllTime: len(comic.Views),
+		},
 	}
 	s.logger.WithField("data", fiber.Map{
 		"slug": slug,

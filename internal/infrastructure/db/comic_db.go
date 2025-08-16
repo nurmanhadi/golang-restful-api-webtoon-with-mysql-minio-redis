@@ -37,7 +37,13 @@ func (r *comicDB) FindByID(comicID int64) (*entity.Comic, error) {
 }
 func (r *comicDB) FindBySlug(slug string) (*entity.Comic, error) {
 	comic := new(entity.Comic)
-	err := r.db.Where("slug = ?", slug).Preload("Chapters").First(comic).Error
+	err := r.db.
+		Where("slug = ?", slug).
+		Preload("Chapters").
+		Preload("ComicGenres.Genre").
+		Preload("Views").
+		First(comic).
+		Error
 	if err != nil {
 		return nil, err
 	}
