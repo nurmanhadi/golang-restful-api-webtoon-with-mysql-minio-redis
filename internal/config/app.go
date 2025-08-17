@@ -9,6 +9,7 @@ import (
 	"welltoon/internal/infrastructure/s3"
 	"welltoon/internal/service"
 
+	"github.com/go-co-op/gocron/v2"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/minio/minio-go/v7"
@@ -25,6 +26,7 @@ type Configuration struct {
 	Logger     *logrus.Logger
 	Validation *validator.Validate
 	App        *fiber.App
+	Schedule   *gocron.Scheduler
 }
 
 func App(conf *Configuration) {
@@ -41,6 +43,7 @@ func App(conf *Configuration) {
 	pageDB := db.NewPageDB(conf.DB)
 	genreDB := db.NewGenreDB(conf.DB)
 	comicGenreDB := db.NewComicGenreDB(conf.DB)
+	viewDB := db.NewViewDB(conf.DB)
 
 	// service
 	userServ := service.NewUserService(conf.Validation, conf.Logger, userDB, s3)
@@ -48,6 +51,7 @@ func App(conf *Configuration) {
 	chapterServ := service.NewChapterService(conf.Logger, conf.Validation, chapterDB, comicDB)
 	pageServ := service.NewPageService(conf.Logger, conf.Validation, pageDB, chapterDB, cache, s3)
 	genreServ := service.NewGenreService(conf.Logger, conf.Validation, genreDB, comicGenreDB)
+	viewServ := service.NewViewService(conf.Logger, conf.Validation, viewDB, cache, comicDB)
 
 	// handler
 	userHand := handler.NewUserHandler(userServ)
@@ -55,6 +59,7 @@ func App(conf *Configuration) {
 	chapterHand := handler.NewChapterHandler(chapterServ)
 	pageHand := handler.NewPageHandler(pageServ)
 	genreHand := handler.NewGenreHandler(genreServ)
+	viewHand := handler.NewViewHandler(viewServ)
 
 	// routes
 	route := &routes.Route{
@@ -64,6 +69,7 @@ func App(conf *Configuration) {
 		ChapterHandler: chapterHand,
 		PageHandler:    pageHand,
 		GenreHandler:   genreHand,
+		ViewHandler:    viewHand,
 	}
 	route.Setup()
 }

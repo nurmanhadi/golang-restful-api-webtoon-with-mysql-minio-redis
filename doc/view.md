@@ -17,9 +17,7 @@
 
     `201` `400` `404`
 
-### 1. Get Total View `GET api/views?by={by}`
-
-> by: enum(daily, weekly, monthly, all-time)
+### 1. Get Total View `GET api/views`
 
 - Header
     `Authorization: Bearer token`

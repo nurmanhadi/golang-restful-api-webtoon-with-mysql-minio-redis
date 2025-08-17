@@ -18,6 +18,7 @@ func main() {
 	logger := config.NewLogger()
 	validation := config.NewValidator()
 	app := config.NewFiber()
+	schedule := config.NewGocron()
 
 	config.App(&config.Configuration{
 		Ctx:        ctx,
@@ -27,6 +28,7 @@ func main() {
 		Logger:     logger,
 		Validation: validation,
 		App:        app,
+		Schedule:   schedule,
 	})
 
 	if err := app.Listen(":3000"); err != nil {

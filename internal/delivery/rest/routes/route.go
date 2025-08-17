@@ -15,6 +15,7 @@ type Route struct {
 	ChapterHandler handler.ChapterHandler
 	PageHandler    handler.PageHandler
 	GenreHandler   handler.GenreHandler
+	ViewHandler    handler.ViewHandler
 }
 
 func (r *Route) Setup() {
@@ -129,4 +130,9 @@ func (r *Route) Setup() {
 		middleware.RoleSession([]string{string(enum.ROLE_ADMIN)}),
 		r.GenreHandler.DeleteGenre) // delete genre
 	genre.Get("/:name", r.GenreHandler.GetComicByGenreName) // get comic by genre name
+
+	// view
+	view := api.Group("/views")
+	view.Post("/", r.ViewHandler.AddView) // add view
+	view.Get("/", r.ViewHandler.GetView)  // get view
 }
