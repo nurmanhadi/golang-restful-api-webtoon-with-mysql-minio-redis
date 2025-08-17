@@ -81,8 +81,13 @@ func (s *viewService) GetView() (*dto.ViewResponse, error) {
 		s.logger.WithError(err).Warn("view not found")
 		return nil, response.Exception(404, "view not found")
 	}
+	dailyView, err := s.cacheRepository.GetView()
+	if err != nil {
+		s.logger.WithError(err).Error("cache get view failed")
+		return nil, err
+	}
 	result := &dto.ViewResponse{
-		Daily:   view.Daily,
+		Daily:   dailyView,
 		Weekly:  view.Weekly,
 		Monthly: view.Monthly,
 		AllTime: view.AllTime,
