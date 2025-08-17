@@ -31,6 +31,7 @@ func main() {
 		Schedule:   schedule,
 	})
 
+	schedule.Start()
 	if err := app.Listen(":3000"); err != nil {
 		log.Fatalf("failed start server: %s", err)
 	}

@@ -25,17 +25,9 @@ func (r *viewDB) FindByID(comicID int64) (*entity.View, error) {
 	}
 	return view, nil
 }
-func (r *viewDB) CountByComicIDIsNull() (int64, error) {
-	var count int64
-	err := r.db.Model(&entity.View{}).Where("comic_id = NULL").Count(&count).Error
-	if err != nil {
-		return 0, nil
-	}
-	return count, nil
-}
 func (r *viewDB) FindByComicIDIsNull() (*entity.View, error) {
 	view := new(entity.View)
-	err := r.db.Where("comic_id = NULL").First(view).Error
+	err := r.db.Where("comic_id IS NULL").First(view).Error
 	if err != nil {
 		return nil, err
 	}

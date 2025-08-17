@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"strconv"
 	"welltoon/internal/repository"
 
 	"github.com/redis/go-redis/v9"
@@ -19,9 +20,18 @@ func (r *cacheRepository) SetView() error {
 	key := "views"
 	return r.cache.Incr(r.ctx, key).Err()
 }
-func (r *cacheRepository) GetView() error {
+func (r *cacheRepository) GetView() (int, error) {
+	var total int
 	key := "views"
-	return r.cache.Get(r.ctx, key).Err()
+	v, err := r.cache.Get(r.ctx, key).Result()
+	if err != nil {
+		return 0, nil
+	}
+	total, err = strconv.Atoi(v)
+	if err != nil {
+		return 0, err
+	}
+	return total, nil
 }
 func (r *cacheRepository) DelView() error {
 	key := "views"

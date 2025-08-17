@@ -26,7 +26,7 @@ type Configuration struct {
 	Logger     *logrus.Logger
 	Validation *validator.Validate
 	App        *fiber.App
-	Schedule   *gocron.Scheduler
+	Schedule   gocron.Scheduler
 }
 
 func App(conf *Configuration) {
@@ -52,6 +52,7 @@ func App(conf *Configuration) {
 	pageServ := service.NewPageService(conf.Logger, conf.Validation, pageDB, chapterDB, cache, s3)
 	genreServ := service.NewGenreService(conf.Logger, conf.Validation, genreDB, comicGenreDB)
 	viewServ := service.NewViewService(conf.Logger, conf.Validation, viewDB, cache, comicDB)
+	jobServ := service.NewJobService(conf.Logger, conf.Schedule, comicDB, viewDB, cache)
 
 	// handler
 	userHand := handler.NewUserHandler(userServ)
@@ -60,6 +61,9 @@ func App(conf *Configuration) {
 	pageHand := handler.NewPageHandler(pageServ)
 	genreHand := handler.NewGenreHandler(genreServ)
 	viewHand := handler.NewViewHandler(viewServ)
+
+	// cronjob
+	jobServ.JobView()
 
 	// routes
 	route := &routes.Route{
